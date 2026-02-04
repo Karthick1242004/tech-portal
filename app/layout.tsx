@@ -1,5 +1,3 @@
-'use client';
-
 import React from "react"
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
@@ -10,6 +8,12 @@ import './globals.css'
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
+export const metadata = {
+  title: 'Technician Portal - Enterprise Access',
+  description: 'Secure technician portal for job management and feedback',
+  generator: 'v0.app'
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -17,10 +21,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <title>Technician Portal - Enterprise Access</title>
-        <meta name="description" content="Secure technician portal for job management and feedback" />
-      </head>
       <body className="font-sans antialiased">
         <AppHeader />
         {children}
@@ -30,7 +30,3 @@ export default function RootLayout({
     </html>
   )
 }
-
-export const metadata = {
-      generator: 'v0.app'
-    };
