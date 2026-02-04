@@ -1,6 +1,16 @@
 import { NextResponse } from 'next/server';
 
+const GOOGLE_API_KEY = process.env.GOOGLE_TRANSLATE_API_KEY;
+
 export async function POST(request: Request) {
+  if (!GOOGLE_API_KEY) {
+    console.error('[Translation] Missing GOOGLE_TRANSLATE_API_KEY');
+    return NextResponse.json(
+      { error: 'Server configuration error' },
+      { status: 500 }
+    );
+  }
+
   try {
     const body = await request.json();
     const { q, source, target, format } = body;
@@ -12,9 +22,10 @@ export async function POST(request: Request) {
       );
     }
 
-    console.log('[v0] Translation request:', { q: q.substring(0, 50), source, target });
-    
-    const response = await fetch('https://libretranslate.com/translate', {
+    // Google Translate API URL
+    const url = `https://translation.googleapis.com/language/translate/v2?key=${GOOGLE_API_KEY}`;
+
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -28,18 +39,39 @@ export async function POST(request: Request) {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('[v0] Translation API error:', response.status, errorText);
-      throw new Error(`Translation API error: ${response.statusText}`);
+      const errorData = await response.json();
+      console.error('[Translation] API error:', response.status, errorData);
+
+      // Handle Specific Google API Errors
+      if (response.status === 403) {
+        return NextResponse.json({ error: 'Invalid API Key or Quota exceeded' }, { status: 403 });
+      }
+      if (response.status === 429) {
+        return NextResponse.json({ error: 'Rate limit exceeded, please try again later' }, { status: 429 });
+      }
+
+      return NextResponse.json(
+        { error: errorData.error?.message || 'Translation provider error' },
+        { status: response.status }
+      );
     }
 
     const data = await response.json();
-    console.log('[v0] Translation API response:', data);
-    return NextResponse.json(data);
+
+    // Google API returns { data: { translations: [{ translatedText: "..." }] } }
+    // We map it to { translatedText: "..." } to match frontend expectations
+    const translatedText = data.data?.translations?.[0]?.translatedText;
+
+    if (!translatedText) {
+      throw new Error('Invalid response format from Translation Provider');
+    }
+
+    return NextResponse.json({ translatedText });
+
   } catch (error) {
-    console.error('[v0] Translation error:', error);
+    console.error('[Translation] Internal error:', error);
     return NextResponse.json(
-      { error: 'Translation failed' },
+      { error: 'Internal translation service failed' },
       { status: 500 }
     );
   }
