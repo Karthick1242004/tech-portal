@@ -10,29 +10,73 @@ export class ApiClient {
     this.baseUrl = baseUrl;
   }
 
+  // Helper to get token from storage safely
+  private getAuthHeader(): Record<string, string> {
+    try {
+      if (typeof window !== 'undefined') {
+        const storage = localStorage.getItem('technician-session');
+        if (storage) {
+          const parsed = JSON.parse(storage);
+          const token = parsed.state?.accessToken;
+          if (token) {
+            return { 'Authorization': `Bearer ${token}` };
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Error reading auth token', e);
+    }
+    return {};
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
-    const url = `${this.baseUrl}${endpoint}`;
-    
+    // If endpoint is absolute (starts with http), use it as is. Otherwise prepend baseUrl
+    const url = endpoint.startsWith('http') ? endpoint : `${this.baseUrl}${endpoint}`;
+
     const config: RequestInit = {
       ...options,
       headers: {
         'Content-Type': 'application/json',
+        ...this.getAuthHeader(),
         ...options.headers,
       },
+      // Important to include credentials if needed for cookies, though we use Bearer
+      // credentials: 'include' 
     };
 
     try {
       const response = await fetch(url, config);
-      
+
       if (!response.ok) {
+        // Handle 401 specifically? 
+        if (response.status === 401) {
+          // Optional: trigger logout event
+        }
+
+        // Try to parse error message from JSON
+        let errorMessage = response.statusText;
+        try {
+          const errorJson = await response.json();
+          errorMessage = errorJson.message || errorJson.error || errorMessage;
+        } catch (e) {
+          // fallback to text
+          const text = await response.text();
+          if (text) errorMessage = text;
+        }
+
         const error: ApiError = {
-          message: await response.text(),
+          message: errorMessage,
           status: response.status,
         };
         throw error;
+      }
+
+      // Check if response is empty
+      if (response.status === 204) {
+        return {} as T;
       }
 
       return response.json();
@@ -74,11 +118,14 @@ export class ApiClient {
   }
 }
 
-export const apiClient = new ApiClient();
+// Configurable base URL
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+export const apiClient = new ApiClient(API_URL);
 
 // Job API functions
 import type { Job } from './mock-jobs';
-import { mockJobs } from './mock-jobs';
+// Keep mockJobs import if needed for types, but we prefer shared types in a real app.
+// For now, assuming API returns Job interface compatible structure.
 
 export interface PaginatedJobsResponse {
   jobs: Job[];
@@ -89,34 +136,39 @@ export interface PaginatedJobsResponse {
 }
 
 export async function getJobs(page: number = 1, limit: number = 10): Promise<PaginatedJobsResponse> {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 800));
-  
+  // Call real API
+  // Note: Backend /api/jobs returns just an array of jobs for now, 
+  // need to handle that or update backend to support pagination metadata.
+  // The backend implementation:
+  // router.get('/', authMiddleware, jobsController.getJobs); -> returns InternalJob[]
+
+  // Fetching all for now because backend doesn't paginate yet
+  const response = await apiClient.get<{ success: boolean; data: Job[] }>('/jobs');
+
+  // Client-side pagination logic to match existing frontend expectations
+  // This maintains the contract while we wait for backend pagination upgrades
+  const allJobs = response.data || [];
   const startIndex = (page - 1) * limit;
   const endIndex = startIndex + limit;
-  
-  const jobs = mockJobs.slice(startIndex, endIndex);
-  const total = mockJobs.length;
-  const hasMore = endIndex < total;
-  
+  const paginatedJobs = allJobs.slice(startIndex, endIndex);
+
   return {
-    jobs,
-    total,
+    jobs: paginatedJobs,
+    total: allJobs.length,
     page,
     limit,
-    hasMore,
+    hasMore: endIndex < allJobs.length,
   };
 }
 
 export async function getJobById(jobId: string): Promise<Job | null> {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 600));
-  
-  const job = mockJobs.find(j => j.id === jobId);
-  
-  if (!job) {
-    return null;
+  try {
+    const response = await apiClient.get<{ success: boolean; data: Job }>(`/jobs/${jobId}`);
+    return response.data;
+  } catch (e) {
+    // If 404, return null? Or let it throw to show error page?
+    // User asked: "if i click a job it will show api error and we already created a custom error page"
+    // So we rethrow
+    throw e;
   }
-  
-  return job;
 }

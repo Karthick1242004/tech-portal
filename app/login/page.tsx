@@ -7,7 +7,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { QrScanner } from '@/components/qr/QrScanner';
 import { useSessionStore } from '@/store/session.store';
 import { apiClient } from '@/lib/api';
-import { Loader2, Shield, AlertCircle } from 'lucide-react';
+import { Loader2, Shield, AlertCircle, ScanLine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function LoginPage() {
@@ -21,41 +21,49 @@ export default function LoginPage() {
   useEffect(() => {
     const token = searchParams.get('token');
     
-    // if (token) {
-    //   handleQrLogin(token);
-    // }
+    if (token) {
+      handleQrLogin(token);
+    }
   }, [searchParams]);
 
-  // const handleQrLogin = async (token: string) => {
-  //   setIsLoading(true);
-  //   setError(null);
+  const handleQrLogin = async (token: string) => {
+    setIsLoading(true);
+    setError(null);
 
-  //   try {
-  //     const response = await apiClient.post<{
-  //       accessToken: string;
-  //       vendorId: string;
-  //       plantId: string;
-  //     }>('/auth/qr-login', { token });
+    try {
+      // Call Real Backend API
+      const response = await apiClient.post<{
+        success: boolean;
+        data: {
+          accessToken: string;
+          vendorId: string;
+          plantId: string;
+          user: { role: 'technician' | 'admin' };
+        }
+      }>('/auth/qr-login', { token });
 
-  //     // Store session in Zustand
-  //     setSession({
-  //       accessToken: response.accessToken,
-  //       vendorId: response.vendorId,
-  //       plantId: response.plantId,
-  //     });
+      const authData = response.data;
 
-  //     // Redirect to jobs page
-  //     router.push('/jobs');
-  //   } catch (err) {
-  //     console.error('[v0] Login failed:', err);
-  //     setError('Invalid QR code. Please try scanning again.');
-  //     setIsLoading(false);
-  //   }
-  // };
+      // Store session in Zustand
+      setSession({
+        accessToken: authData.accessToken,
+        vendorId: authData.vendorId,
+        plantId: authData.plantId,
+        userRole: authData.user.role || 'technician'
+      });
 
-  const handleTestDemo = () => {
-    setTestMode(true);
-    router.push('/jobs');
+      // Redirect to jobs page
+      router.push('/jobs');
+    } catch (err: any) {
+      console.error('[Header] Login failed:', err);
+      setError(err.message || 'Invalid QR code. Please try scanning again.');
+      setIsLoading(false);
+    }
+  };
+
+  const handleSimulateScan = () => {
+      // Simulate scanning a valid QR code: VENDOR:PLANT:USER
+      handleQrLogin("ACME:Plant1:Tech001");
   };
 
   return (
@@ -71,8 +79,11 @@ export default function LoginPage() {
           </div>
 
           {/* QR Scanner */}
-          <div className="py-4">
+          <div className="py-4 relative group cursor-pointer" onClick={handleSimulateScan} title="Click to simulate scan">
             <QrScanner />
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/10 rounded-2xl">
+                 <span className="bg-white px-3 py-1 rounded shadow text-sm font-medium">Click to Simulate Scan</span>
+            </div>
           </div>
 
           {/* Instruction */}
@@ -98,15 +109,17 @@ export default function LoginPage() {
             )}
           </div>
 
-          {/* Test Demo Button */}
-          <div className="pt-4 border-t">
+          {/* Dev Tools */}
+          <div className="space-y-2 pt-4 border-t">
             <Button
-              onClick={handleTestDemo}
-              className="w-full"
-              variant={isTestMode ? "default" : "outline"}
+                onClick={handleSimulateScan}
+                className="w-full bg-blue-600 hover:bg-blue-700"
             >
-              {isTestMode ? 'Test Mode Active' : 'Test Demo Data'}
+                <ScanLine className="w-4 h-4 mr-2" />
+                Simulate Scan (Dev)
             </Button>
+            
+            {/* Optional: Keep test mode for fallback if needed, but 'Simulate Scan' is better */}
           </div>
 
           {/* Footer */}
