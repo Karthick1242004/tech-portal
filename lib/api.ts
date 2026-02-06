@@ -116,6 +116,51 @@ export class ApiClient {
   async delete<T>(endpoint: string, options?: RequestInit): Promise<T> {
     return this.request<T>(endpoint, { ...options, method: 'DELETE' });
   }
+
+  async postFormData<T>(
+    endpoint: string,
+    data: FormData,
+    options?: RequestInit
+  ): Promise<T> {
+    const url = endpoint.startsWith('http') ? endpoint : `${this.baseUrl}${endpoint}`;
+
+    // Do not set Content-Type header for FormData, let browser set it with boundary
+    const headers = {
+      ...this.getAuthHeader(),
+      ...options?.headers,
+    };
+
+    const config: RequestInit = {
+      ...options,
+      method: 'POST',
+      headers,
+      body: data,
+    };
+
+    try {
+      const response = await fetch(url, config);
+
+      if (!response.ok) {
+        let errorMessage = response.statusText;
+        try {
+          const errorJson = await response.json();
+          errorMessage = errorJson.message || errorJson.error || errorMessage;
+        } catch (e) {
+          const text = await response.text();
+          if (text) errorMessage = text;
+        }
+
+        throw {
+          message: errorMessage,
+          status: response.status,
+        };
+      }
+
+      return response.json();
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 // Configurable base URL

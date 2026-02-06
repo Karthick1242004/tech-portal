@@ -1,40 +1,64 @@
 'use client';
 
-import React from "react"
-
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Clock, Loader2 } from 'lucide-react';
+import { Clock, Loader2, Image as ImageIcon } from 'lucide-react';
 import type { Job } from '@/lib/mock-jobs';
+import { apiClient } from '@/lib/api';
 
 interface JobFeedbackProps {
   job: Job;
+  selectedImages: File[];
+  setSelectedImages: (images: File[]) => void;
+  setPreviewUrls: (urls: string[]) => void;
 }
 
-export function JobFeedback({ job }: JobFeedbackProps) {
-  const [feedbackText, setFeedbackText] = useState(job.feedbackText);
-  const [hoursWorked, setHoursWorked] = useState(job.hoursWorked.toString());
+export function JobFeedback({ job, selectedImages, setSelectedImages, setPreviewUrls }: JobFeedbackProps) {
+  const [feedbackText, setFeedbackText] = useState(job.feedbackText || '');
+  const [hoursWorked, setHoursWorked] = useState(job.hoursWorked?.toString() || '0');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     setIsSubmitting(true);
 
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    try {
+        const formData = new FormData();
+        formData.append('jobId', job.id);
+        formData.append('content', feedbackText);
+        formData.append('hoursWorked', hoursWorked);
+        formData.append('equipmentId', job.equipment.id);
+        
+        selectedImages.forEach(file => {
+            formData.append('images', file);
+        });
 
-    toast({
-      title: 'Success',
-      description: 'Feedback submitted successfully',
-    });
+        await apiClient.postFormData('/feedback', formData);
 
-    setIsSubmitting(false);
+        toast({
+            title: 'Success',
+            description: 'Feedback and images submitted successfully',
+        });
+        
+        // Optional: Clear form or redirect
+        setSelectedImages([]);
+        setPreviewUrls([]);
+    } catch (error: any) {
+        console.error('Feedback submit error:', error);
+        toast({
+            title: 'Submission Failed',
+            description: error.message || 'Failed to submit feedback',
+            variant: 'destructive'
+        });
+    } finally {
+        setIsSubmitting(false);
+    }
   };
 
   return (
@@ -53,6 +77,25 @@ export function JobFeedback({ job }: JobFeedbackProps) {
           aria-label="Enter work completed and feedback details"
           required
         />
+      </Card>
+
+      <Card className="p-4 bg-muted/30">
+        <Label className="text-sm font-semibold flex items-center gap-2 mb-3">
+            <ImageIcon className="w-4 h-4" />
+            Images Attached ({selectedImages.length})
+        </Label>
+        
+        {selectedImages.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No new images attached. Go to the Images tab to add photos.</p>
+        ) : (
+             <div className="grid grid-cols-4 gap-2">
+                 {selectedImages.map((file, i) => (
+                     <div key={i} className="text-xs text-muted-foreground truncate border p-1 rounded bg-background">
+                         {file.name}
+                     </div>
+                 ))}
+             </div>
+        )}
       </Card>
 
       <Card className="p-4">

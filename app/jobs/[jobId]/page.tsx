@@ -31,6 +31,10 @@ export default function JobDetailPage() {
   const [isTranslating, setIsTranslating] = useState(false);
   const [translatedDescription, setTranslatedDescription] = useState<string | null>(null);
   const [translatedInstruction, setTranslatedInstruction] = useState<string | null>(null);
+  
+  // Shared state for Feedback and Images
+  const [feedbackImages, setFeedbackImages] = useState<File[]>([]);
+  const [feedbackPreviewUrls, setFeedbackPreviewUrls] = useState<string[]>([]);
 
   useEffect(() => {
     // Auth check - commented out for testing
@@ -216,11 +220,26 @@ export default function JobDetailPage() {
               </TabsContent>
 
               <TabsContent value="images" className="mt-6">
-                {isLoading ? <JobImagesSkeleton /> : job && <JobImages job={job} />}
+                {isLoading ? <JobImagesSkeleton /> : job && 
+                  <JobImages 
+                    job={job} 
+                    selectedImages={feedbackImages}
+                    setSelectedImages={setFeedbackImages}
+                    previewUrls={feedbackPreviewUrls}
+                    setPreviewUrls={setFeedbackPreviewUrls}
+                  />
+                }
               </TabsContent>
 
               <TabsContent value="feedback" className="mt-6">
-                {isLoading ? <JobFeedbackSkeleton /> : job && <JobFeedback job={job} />}
+                {isLoading ? <JobFeedbackSkeleton /> : job && 
+                  <JobFeedback 
+                    job={job} 
+                    selectedImages={feedbackImages}
+                    setSelectedImages={setFeedbackImages}
+                    setPreviewUrls={setFeedbackPreviewUrls}
+                  />
+                }
               </TabsContent>
             </Tabs>
           )}

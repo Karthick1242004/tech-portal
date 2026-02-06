@@ -12,47 +12,52 @@ import Image from 'next/image';
 
 interface JobImagesProps {
   job: Job;
+  selectedImages: File[];
+  setSelectedImages: (images: File[]) => void;
+  previewUrls: string[];
+  setPreviewUrls: (urls: string[]) => void;
 }
 
-interface PreviewImage {
-  url: string;
-  file: File;
-}
-
-export function JobImages({ job }: JobImagesProps) {
+export function JobImages({ job, selectedImages, setSelectedImages, previewUrls, setPreviewUrls }: JobImagesProps) {
   const maxImages = 4;
-  const [selectedImages, setSelectedImages] = useState<PreviewImage[]>([]);
   const { toast } = useToast();
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     
-    const totalImages = job.images.length + selectedImages.length + files.length;
+    // Calculate total including existing job images
+    // Note: If backend supports only 4 images TOTAL, we should count job.images too.
+    // Assuming job.images are READ ONLY and we can add up to 4 NEW images? 
+    // Or 4 TOTAL? The prompt says "Max 4". Let's assume 4 Total slots available.
+    const totalCurrent = job.images.length + selectedImages.length;
+    const remainingSlots = maxImages - totalCurrent;
     
-    if (totalImages > maxImages) {
-      toast({
-        title: 'Maximum images exceeded',
-        description: `You can only upload up to ${maxImages} images`,
-        variant: 'destructive',
-      });
-      return;
+    if (remainingSlots <= 0) {
+        toast({
+            title: 'Maximum images reached',
+            description: `You can only have a total of ${maxImages} images.`,
+            variant: 'destructive',
+        });
+        return;
     }
 
-    const newImages = files.map(file => ({
-      url: URL.createObjectURL(file),
-      file,
-    }));
+    const availableFiles = files.slice(0, remainingSlots);
 
-    setSelectedImages(prev => [...prev, ...newImages]);
+    const newPreviewUrls = availableFiles.map(file => URL.createObjectURL(file));
+    
+    setSelectedImages([...selectedImages, ...availableFiles]);
+    setPreviewUrls([...previewUrls, ...newPreviewUrls]);
   };
 
   const handleRemoveImage = (index: number) => {
-    setSelectedImages(prev => {
-      const updated = [...prev];
-      URL.revokeObjectURL(updated[index].url);
-      updated.splice(index, 1);
-      return updated;
-    });
+    const urlToRemove = previewUrls[index];
+    URL.revokeObjectURL(urlToRemove);
+
+    const newSelected = selectedImages.filter((_, i) => i !== index);
+    const newPreviews = previewUrls.filter((_, i) => i !== index);
+
+    setSelectedImages(newSelected);
+    setPreviewUrls(newPreviews);
   };
 
   const totalDisplayed = job.images.length + selectedImages.length;
@@ -108,10 +113,10 @@ export function JobImages({ job }: JobImagesProps) {
         ))}
 
         {/* Selected Images with Remove Button */}
-        {selectedImages.map((image, index) => (
+        {previewUrls.map((url, index) => (
           <Card key={`selected-${index}`} className="relative aspect-[4/3] overflow-hidden group">
             <Image
-              src={image.url || "/placeholder.svg"}
+              src={url || "/placeholder.svg"}
               alt={`Selected image ${index + 1}`}
               fill
               className="object-cover"
