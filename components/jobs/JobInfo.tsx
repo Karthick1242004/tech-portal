@@ -104,9 +104,10 @@ export function JobInfo({ job, translatedDescription, translatedInstruction, isT
             <span className="text-sm text-muted-foreground">Translating...</span>
           </div>
         ) : (
-          <p className="text-sm text-foreground/80 leading-relaxed bg-amber-50/50 dark:bg-amber-950/10 p-3 rounded-md border border-amber-100 dark:border-amber-900/20">
-            {translatedInstruction || job.jobInstruction}
-          </p>
+          <div 
+            className="text-sm text-foreground/80 leading-relaxed bg-amber-50/50 dark:bg-amber-950/10 p-3 rounded-md border border-amber-100 dark:border-amber-900/20 prose prose-sm max-w-none"
+            dangerouslySetInnerHTML={{ __html: translatedInstruction || job.jobInstruction }}
+          />
         )}
       </Card>
 
