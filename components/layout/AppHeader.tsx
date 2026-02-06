@@ -45,35 +45,20 @@ export function AppHeader() {
 
         {isAuthenticated && (
           <div className="flex items-center gap-2">
-            {userRole === 'technician' && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="outline"
-                    size="sm"
-                    onClick={() => router.push('/admin')}
-                    aria-label="Access admin interface"
-                  >
-                    <LayoutGrid className="w-4 h-4 md:mr-2" aria-hidden="true" />
-                    <span className="hidden md:inline">Admin Access</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Admin Access</p>
-                </TooltipContent>
-              </Tooltip>
-            )}
+
             {userRole === 'admin' && (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button 
                     variant="outline"
                     size="sm"
-                    onClick={() => router.push('/jobs')}
-                    aria-label="Return to technician portal"
+                    onClick={() => {
+                        clearSession();
+                        router.push('/login');
+                    }}
+                    aria-label="Return to QR Scan"
                   >
-                     {/* Using LayoutGrid generic icon or maybe an arrow back? sticking to text logic for now but hidden on mobile */}
-                    <span className="hidden md:inline">Return to Technician</span>
+                    <span className="hidden md:inline">Back to QR</span>
                     <span className="md:hidden">Back</span>
                   </Button>
                 </TooltipTrigger>

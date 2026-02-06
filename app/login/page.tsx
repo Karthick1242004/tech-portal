@@ -120,6 +120,22 @@ export default function LoginPage() {
             </Button>
             
             {/* Optional: Keep test mode for fallback if needed, but 'Simulate Scan' is better */}
+            <Button
+              onClick={() => {
+                setSession({
+                  accessToken: 'demo-admin-token',
+                  vendorId: 'ACME',
+                  plantId: 'PLANT-001',
+                  userRole: 'admin'
+                });
+                router.push('/admin');
+              }}
+              variant="outline"
+              className="w-full text-muted-foreground hover:text-foreground"
+            >
+              <Shield className="w-4 h-4 mr-2" />
+              Admin Access (Login)
+            </Button>
           </div>
 
           {/* Footer */}
