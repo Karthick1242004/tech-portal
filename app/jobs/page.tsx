@@ -136,7 +136,7 @@ export default function JobsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen flex flex-col">
       {/* Sticky Header */}
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b">
         <div className="flex justify-center">
@@ -197,8 +197,8 @@ export default function JobsPage() {
           {/* Jobs List */}
           {!isLoading && !isError && (
             <div className="space-y-4">
-              {filteredJobs.map((job) => (
-                <JobCard key={job.id} job={job} />
+              {filteredJobs.map((job, index) => (
+                <JobCard key={job.id} job={job} index={index} />
               ))}
 
               {/* Intersection Observer Target */}

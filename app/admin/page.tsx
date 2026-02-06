@@ -25,7 +25,7 @@ export default function AdminDashboard() {
   // Show role switcher for testing if in test mode
   if (userRole === 'technician') {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="max-w-md w-full p-8 text-center">
           <div className="w-20 h-20 rounded-full bg-orange-100 dark:bg-orange-950 flex items-center justify-center mx-auto mb-6">
             <ShieldAlert className="w-10 h-10 text-orange-600 dark:text-orange-400" />
@@ -49,7 +49,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <div className="flex justify-center py-8">
         <div className="w-full max-w-4xl px-4">
           {/* Header */}

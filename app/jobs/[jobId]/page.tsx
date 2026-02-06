@@ -144,7 +144,7 @@ export default function JobDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen flex flex-col">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b">
         <div className="flex justify-center">
@@ -159,21 +159,30 @@ export default function JobDetailPage() {
               Back to Jobs
             </Button>
 
-            {job && (
-              <div className="space-y-3">
-                <div>
-                  <h1 className="text-2xl font-bold tracking-tight">Job Details</h1>
-                  <p className="text-sm text-muted-foreground">
-                    {job.equipment.id} - {job.equipment.name}
-                  </p>
+              {job && (
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex items-center gap-3 mb-1">
+                      <h1 className="text-2xl font-bold tracking-tight">Job Details</h1>
+                      <div className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                        job.priority === 'HIGH' ? 'bg-red-100 text-red-700 border-red-200' :
+                        job.priority === 'MEDIUM' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                        'bg-emerald-100 text-emerald-700 border-emerald-200'
+                      }`}>
+                        {job.priority}
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {job.equipment.id} - {job.equipment.name}
+                    </p>
+                  </div>
+                  <LanguageSelector
+                    value={currentLanguage}
+                    onChange={handleLanguageChange}
+                    disabled={isTranslating}
+                  />
                 </div>
-                <LanguageSelector
-                  value={currentLanguage}
-                  onChange={handleLanguageChange}
-                  disabled={isTranslating}
-                />
-              </div>
-            )}
+              )}
           </div>
         </div>
       </header>

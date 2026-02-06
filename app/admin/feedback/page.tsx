@@ -70,7 +70,7 @@ export default function AdminFeedbackPage() {
   }, [debouncedSearch, minHours, hasImages, feedbacks]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <div className="container mx-auto max-w-4xl py-8 px-4">
         {/* Header */}
         <div className="mb-8">
@@ -117,8 +117,8 @@ export default function AdminFeedbackPage() {
               </div>
             ))
           ) : filteredFeedback.length > 0 ? (
-            filteredFeedback.map((feedback) => (
-              <FeedbackCard key={feedback.id} feedback={feedback} />
+            filteredFeedback.map((feedback, index) => (
+              <FeedbackCard key={feedback.id} feedback={feedback} index={index} />
             ))
           ) : feedbacks.length === 0 ? (
             <EmptyState
