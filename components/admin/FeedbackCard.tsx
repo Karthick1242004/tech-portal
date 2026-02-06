@@ -62,17 +62,17 @@ export function FeedbackCard({ feedback }: FeedbackCardProps) {
                   <button
                     key={index}
                     onClick={() => setSelectedImage(image)}
-                    className="relative w-12 h-12 rounded border overflow-hidden hover:ring-2 hover:ring-primary transition-all"
+                    className="relative w-24 h-24 rounded border overflow-hidden hover:ring-2 hover:ring-primary transition-all shadow-sm"
                   >
-                    <ImageIcon
+                    <img
                       src={image || "/placeholder.svg"}
                       alt={`Feedback image ${index + 1}`}
-                      className="object-cover"
+                      className="w-full h-full object-cover"
                     />
                   </button>
                 ))}
                 {feedback.images.length > 3 && (
-                  <div className="w-12 h-12 rounded border flex items-center justify-center bg-muted text-xs font-medium">
+                  <div className="w-24 h-24 rounded border flex items-center justify-center bg-muted text-lg font-medium">
                     +{feedback.images.length - 3}
                   </div>
                 )}
@@ -91,20 +91,20 @@ export function FeedbackCard({ feedback }: FeedbackCardProps) {
       {/* Image Preview Modal */}
       {selectedImage && (
         <div
-          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
           onClick={() => setSelectedImage(null)}
         >
           <button
-            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white flex items-center justify-center"
+            className="absolute top-4 right-4 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
             onClick={() => setSelectedImage(null)}
           >
-            <X className="w-5 h-5" />
+            <X className="w-6 h-6" />
           </button>
-          <div className="relative w-full max-w-3xl aspect-video">
-            <ImageIcon
+          <div className="relative w-full max-w-5xl h-[85vh] flex items-center justify-center">
+            <img
               src={selectedImage || "/placeholder.svg"}
               alt="Preview"
-              className="object-contain"
+              className="max-w-full max-h-full object-contain rounded-md shadow-2xl"
             />
           </div>
         </div>

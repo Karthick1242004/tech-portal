@@ -6,7 +6,7 @@ import { FeedbackFilters } from '@/components/admin/FeedbackFilters';
 import { EmptyState } from '@/components/system/EmptyState';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MessageSquare } from 'lucide-react';
-import { mockFeedback } from '@/lib/mock-feedback';
+import { apiClient } from '@/lib/api';
 
 export default function AdminFeedbackPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -14,11 +14,25 @@ export default function AdminFeedbackPage() {
   const [hasImages, setHasImages] = useState('all');
   const [isLoading, setIsLoading] = useState(true);
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [feedbacks, setFeedbacks] = useState<any[]>([]); // Using any for now to match backend shape
 
-  // Simulate initial load
+  // Fetch real feedback data
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 800);
-    return () => clearTimeout(timer);
+    const fetchFeedback = async () => {
+      try {
+        setIsLoading(true);
+        const response = await apiClient.get<{ success: boolean; data: any[] }>('/feedback/all');
+        if (response.success) {
+          setFeedbacks(response.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch feedback:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchFeedback();
   }, []);
 
   // Debounce search
@@ -31,14 +45,14 @@ export default function AdminFeedbackPage() {
 
   // Filter feedback
   const filteredFeedback = useMemo(() => {
-    return mockFeedback.filter((feedback) => {
+    return feedbacks.filter((feedback) => {
       // Search filter
       if (debouncedSearch) {
         const query = debouncedSearch.toLowerCase();
         const matchesSearch =
-          feedback.jobId.toLowerCase().includes(query) ||
-          feedback.equipmentName.toLowerCase().includes(query) ||
-          feedback.technicianName.toLowerCase().includes(query);
+          (feedback.jobId || '').toLowerCase().includes(query) ||
+          (feedback.equipmentName || '').toLowerCase().includes(query) ||
+          (feedback.technicianName || '').toLowerCase().includes(query);
         if (!matchesSearch) return false;
       }
 
@@ -48,12 +62,12 @@ export default function AdminFeedbackPage() {
       }
 
       // Has images filter
-      if (hasImages === 'yes' && feedback.images.length === 0) return false;
-      if (hasImages === 'no' && feedback.images.length > 0) return false;
+      if (hasImages === 'yes' && (!feedback.images || feedback.images.length === 0)) return false;
+      if (hasImages === 'no' && feedback.images && feedback.images.length > 0) return false;
 
       return true;
     });
-  }, [debouncedSearch, minHours, hasImages]);
+  }, [debouncedSearch, minHours, hasImages, feedbacks]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -83,7 +97,7 @@ export default function AdminFeedbackPage() {
         {/* Results Count */}
         {!isLoading && (
           <p className="text-sm text-muted-foreground mb-4">
-            Showing {filteredFeedback.length} of {mockFeedback.length} feedback entries
+            Showing {filteredFeedback.length} of {feedbacks.length} feedback entries
           </p>
         )}
 
@@ -106,7 +120,7 @@ export default function AdminFeedbackPage() {
             filteredFeedback.map((feedback) => (
               <FeedbackCard key={feedback.id} feedback={feedback} />
             ))
-          ) : mockFeedback.length === 0 ? (
+          ) : feedbacks.length === 0 ? (
             <EmptyState
               icon={MessageSquare}
               title="No feedback available yet"
