@@ -217,3 +217,29 @@ export async function getJobById(jobId: string): Promise<Job | null> {
     throw e;
   }
 }
+// Admin User Management API
+export interface AdminUser {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+  createdAt: string;
+}
+
+export async function getAdminUsers(): Promise<AdminUser[]> {
+  const response = await apiClient.get<{ success: boolean; data: AdminUser[] }>('/admin/users');
+  return response.data;
+}
+
+export async function createAdminUser(userData: { name: string; email: string; password: string }): Promise<AdminUser> {
+  const response = await apiClient.post<{ success: boolean; data: AdminUser }>('/admin/users', userData);
+  return response.data;
+}
+
+export async function resetAdminPassword(userId: string, newPassword: string): Promise<void> {
+  await apiClient.post(`/admin/users/${userId}/reset-password`, { newPassword });
+}
+
+export async function deleteAdminUser(userId: string): Promise<void> {
+  await apiClient.delete(`/admin/users/${userId}`);
+}

@@ -122,13 +122,7 @@ export default function LoginPage() {
             {/* Optional: Keep test mode for fallback if needed, but 'Simulate Scan' is better */}
             <Button
               onClick={() => {
-                setSession({
-                  accessToken: 'demo-admin-token',
-                  vendorId: 'ACME',
-                  plantId: 'PLANT-001',
-                  userRole: 'admin'
-                });
-                router.push('/admin');
+                router.push('/admin/login');
               }}
               variant="outline"
               className="w-full text-muted-foreground hover:text-foreground"

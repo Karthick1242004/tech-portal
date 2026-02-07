@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { MessageSquare, QrCode } from 'lucide-react';
+import { MessageSquare, QrCode, Users } from 'lucide-react';
 
 const adminLinks = [
   {
@@ -17,6 +17,12 @@ const adminLinks = [
     label: 'QR Code Generator',
     icon: QrCode,
     description: 'Generate QR codes for job access',
+  },
+  {
+    href: '/admin/users',
+    label: 'User Management',
+    icon: 'Users', // Will need to import Users icon
+    description: 'Manage admin accounts and access',
   },
 ];
 
