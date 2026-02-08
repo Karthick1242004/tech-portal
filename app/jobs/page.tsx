@@ -155,7 +155,7 @@ export default function JobsPage() {
       </header>
 
       <main className="flex-1 flex justify-center py-6">
-        <div className="w-full max-w-2xl px-4">
+        <div className="w-full max-w-7xl px-4">
           {/* Filters */}
           {!isLoading && !isError && (
             <JobFilters
@@ -170,8 +170,8 @@ export default function JobsPage() {
 
           {/* Loading State */}
           {isLoading && (
-            <div className="space-y-4">
-              {Array.from({ length: 5 }).map((_, i) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {Array.from({ length: 8 }).map((_, i) => (
                 <JobSkeleton key={i} />
               ))}
             </div>
@@ -197,9 +197,12 @@ export default function JobsPage() {
           {/* Jobs List */}
           {!isLoading && !isError && (
             <div className="space-y-4">
-              {filteredJobs.map((job, index) => (
-                <JobCard key={job.id} job={job} index={index} />
-              ))}
+              {/* Jobs Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {filteredJobs.map((job, index) => (
+                  <JobCard key={job.id} job={job} index={index} />
+                ))}
+              </div>
 
               {/* Intersection Observer Target */}
               <div ref={observerTarget} className="h-20 flex items-center justify-center">

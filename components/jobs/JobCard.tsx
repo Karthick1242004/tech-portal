@@ -35,9 +35,9 @@ export function JobCard({ job, index = 0 }: JobCardProps) {
   const priorityLabel = job.priority === 'MEDIUM' ? 'Medium' : job.priority === 'HIGH' ? 'High' : 'Low';
 
   return (
-    <Link href={`/jobs/${job.id}`} className="block">
+    <Link href={`/jobs/${job.id}`} className="block h-full">
       <Card 
-        className={`p-4 border-2 ${config.card} hover:shadow-lg hover:scale-[1.01] transition-all duration-300 ease-out animate-slideUp group active:scale-[0.99]`}
+        className={`h-full p-4 border-2 ${config.card} hover:shadow-lg hover:scale-[1.01] transition-all duration-300 ease-out animate-slideUp group active:scale-[0.99] flex flex-col`}
         style={{ animationDelay: `${index * 50}ms` }}
       >
         <div className="space-y-3">
