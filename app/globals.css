@@ -122,8 +122,9 @@
 
   body {
     @apply text-foreground min-h-screen;
-    background: url('/app_bg.jpeg') no-repeat center center fixed;
+    background: url('/new-bg-tech.png') no-repeat center top;
     background-size: cover;
+    background-attachment: scroll;
   }
 }
 
