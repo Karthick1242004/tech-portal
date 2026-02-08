@@ -163,7 +163,7 @@ export default function JobDetailPage() {
                 <div className="space-y-3">
                   <div>
                     <div className="flex items-center gap-3 mb-1">
-                      <h1 className="text-2xl font-bold tracking-tight">Job Details</h1>
+                      <h1 className="text-2xl font-bold tracking-tight">{job.equipment.id} - {job.equipment.name}</h1>
                       <div className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${
                         job.priority === 'HIGH' ? 'bg-red-100 text-red-700 border-red-200' :
                         job.priority === 'MEDIUM' ? 'bg-blue-100 text-blue-700 border-blue-200' :
@@ -173,7 +173,7 @@ export default function JobDetailPage() {
                       </div>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      {job.equipment.id} - {job.equipment.name}
+                      {job.processFunction.id} - {job.processFunction.description}
                     </p>
                   </div>
                   <LanguageSelector
