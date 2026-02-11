@@ -10,6 +10,8 @@ import { JobFilters } from '@/components/jobs/JobFilters';
 import { EmptyState } from '@/components/system/EmptyState';
 import { Loader2, Briefcase } from 'lucide-react';
 import type { Job } from '@/lib/mock-jobs';
+import { JobFilterState, INITIAL_FILTER_STATE } from '@/types/filters';
+import { filterJobs } from '@/lib/filter-utils';
 
 export default function JobsPage() {
   const router = useRouter();
@@ -21,10 +23,11 @@ export default function JobsPage() {
   const [isError, setIsError] = useState(false);
   const [hasNextPage, setHasNextPage] = useState(true);
   const [totalJobs, setTotalJobs] = useState(0);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [priorityFilter, setPriorityFilter] = useState('all');
-  const [processFilter, setProcessFilter] = useState('all');
+  
+  // New Filter State
+  const [filterState, setFilterState] = useState<JobFilterState>(INITIAL_FILTER_STATE);
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  
   const observerTarget = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -37,10 +40,10 @@ export default function JobsPage() {
   // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedSearch(searchQuery);
+      setDebouncedSearch(filterState.search);
     }, 300);
     return () => clearTimeout(timer);
-  }, [searchQuery]);
+  }, [filterState.search]);
 
   // Load initial jobs
   useEffect(() => {
@@ -50,6 +53,7 @@ export default function JobsPage() {
       try {
         setIsLoading(true);
         setIsError(false);
+        // ... rest of loadJobs (unchanged logic, just context)
         const result = await getJobs(1, 10);
         
         // Debug logging for API response
@@ -74,33 +78,14 @@ export default function JobsPage() {
     };
 
     loadJobs();
-  }, []);
+  }, []); // Remove dependencies to avoid re-fetching on filter change (client-side filtering)
 
   // Filter jobs
   const filteredJobs = useMemo(() => {
-    return allJobs.filter((job) => {
-      // Search filter
-      if (debouncedSearch) {
-        const query = debouncedSearch.toLowerCase();
-        const matchesSearch =
-          job.equipment.name.toLowerCase().includes(query) ||
-          job.equipment.id.toLowerCase().includes(query);
-        if (!matchesSearch) return false;
-      }
-
-      // Priority filter
-      if (priorityFilter !== 'all' && job.priority !== priorityFilter) {
-        return false;
-      }
-
-      // Process filter
-      if (processFilter !== 'all' && job.processFunction.description !== processFilter) {
-        return false;
-      }
-
-      return true;
-    });
-  }, [allJobs, debouncedSearch, priorityFilter, processFilter]);
+    // Create effective state with debounced search
+    const effectiveState = { ...filterState, search: debouncedSearch };
+    return filterJobs(allJobs, effectiveState);
+  }, [allJobs, filterState, debouncedSearch]);
 
   const fetchNextPage = useCallback(async () => {
     if (isFetchingNextPage || !hasNextPage) return;
@@ -169,12 +154,10 @@ export default function JobsPage() {
           {/* Filters */}
           {!isLoading && !isError && (
             <JobFilters
-              searchQuery={searchQuery}
-              priorityFilter={priorityFilter}
-              processFilter={processFilter}
-              onSearchChange={setSearchQuery}
-              onPriorityChange={setPriorityFilter}
-              onProcessChange={setProcessFilter}
+              filterState={filterState}
+              onFilterChange={setFilterState}
+              onReset={() => setFilterState(INITIAL_FILTER_STATE)}
+              totalJobs={totalJobs}
             />
           )}
 
@@ -239,9 +222,7 @@ export default function JobsPage() {
                   action={{
                     label: 'Clear Filters',
                     onClick: () => {
-                      setSearchQuery('');
-                      setPriorityFilter('all');
-                      setProcessFilter('all');
+                      setFilterState(INITIAL_FILTER_STATE);
                     },
                   }}
                 />
