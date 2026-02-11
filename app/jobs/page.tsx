@@ -51,6 +51,16 @@ export default function JobsPage() {
         setIsLoading(true);
         setIsError(false);
         const result = await getJobs(1, 10);
+        
+        // Debug logging for API response
+        console.log('=== JOBS API RESPONSE ===');
+        console.log('Total jobs:', result.total);
+        console.log('Has more:', result.hasMore);
+        console.log('Sample job structure:', result.jobs[0]);
+        console.log('Equipment enrichment:', result.jobs[0]?.equipment);
+        console.log('ProcessFunction enrichment:', result.jobs[0]?.processFunction);
+        console.log('========================');
+        
         setAllJobs(result.jobs);
         setTotalJobs(result.total);
         setHasNextPage(result.hasMore);

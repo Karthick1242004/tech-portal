@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Settings, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import type { Job } from '@/lib/mock-jobs';
 
 interface JobCardProps {
@@ -58,21 +58,34 @@ export function JobCard({ job, index = 0 }: JobCardProps) {
             </div>
           </div>
 
-          {/* Process */}
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Settings className="w-4 h-4" />
-            <span>Process: {job.processFunction.description}</span>
-          </div>
-
           {/* Description */}
           <p className="text-sm text-foreground/80 line-clamp-2 leading-relaxed">
             {job.description}
           </p>
 
-          {/* Planned Start */}
-          <div className="flex items-center gap-2 text-sm text-muted-foreground pt-1 border-t border-border/50">
-            <Calendar className="w-4 h-4" />
-            <span>Start: {job.plannedStart}</span>
+          {/* Job ID + Date + Status + Process Function */}
+          <div className="text-xs text-muted-foreground pt-1 border-t border-border/50 space-y-1">
+            <div className="flex items-center gap-1 flex-wrap">
+              <span className="font-medium">{job.id}</span>
+              <span>-</span>
+              <span>{new Date(job.plannedStart).toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                day: 'numeric', 
+                month: 'long', 
+                year: 'numeric' 
+              })}</span>
+              <span>{new Date(job.plannedStart).toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: false
+              })}</span>
+              <span>-</span>
+              <span className={job.status.toLowerCase() === 'in progress' ? 'text-emerald-600 font-semibold dark:text-emerald-400' : 'font-medium'}>
+                {job.status}
+              </span>
+              <span>-</span>
+              <span>{job.processFunction.description}</span>
+            </div>
           </div>
         </div>
       </Card>

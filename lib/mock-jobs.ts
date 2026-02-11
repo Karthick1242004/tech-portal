@@ -9,6 +9,7 @@ export interface Job {
     id: string;
     description: string;
   };
+  status: string;
   jobInstruction: string;
   feedbackText: string;
   priority: 'HIGH' | 'MEDIUM' | 'LOW';
@@ -101,13 +102,13 @@ const maintenanceTasks = [
 function generateRandomDate(startDays: number, endDays: number): string {
   const start = new Date();
   start.setDate(start.getDate() + startDays);
-  
+
   const end = new Date();
   end.setDate(end.getDate() + endDays);
-  
+
   const randomTime = start.getTime() + Math.random() * (end.getTime() - start.getTime());
   const randomDate = new Date(randomTime);
-  
+
   // Format: "03 Feb 2026 - 10:30 AM"
   const day = randomDate.getDate().toString().padStart(2, '0');
   const month = randomDate.toLocaleDateString('en-US', { month: 'short' });
@@ -116,7 +117,7 @@ function generateRandomDate(startDays: number, endDays: number): string {
   const minutes = randomDate.getMinutes().toString().padStart(2, '0');
   const ampm = hours >= 12 ? 'PM' : 'AM';
   const displayHours = hours % 12 || 12;
-  
+
   return `${day} ${month} ${year} - ${displayHours}:${minutes} ${ampm}`;
 }
 
@@ -129,13 +130,13 @@ export const mockJobs: Job[] = Array.from({ length: 50 }, (_, index) => {
   const feedbackIndex = index % feedbackTemplates.length;
   const plannedStartDate = generateRandomDate(0, 14);
   const targetEndDate = generateRandomDate(0, 14);
-  
+
   // Random number of images (0-3)
   const imageCount = Math.floor(Math.random() * 4);
-  const jobImages = Array.from({ length: imageCount }, (_, i) => 
+  const jobImages = Array.from({ length: imageCount }, (_, i) =>
     `${sampleImages[i % sampleImages.length]}?w=400&h=300&fit=crop&q=80&sig=${index}-${i}`
   );
-  
+
   return {
     id: `JOB-${(index + 1).toString().padStart(5, '0')}`,
     description: descriptions[descriptionIndex],
@@ -147,6 +148,7 @@ export const mockJobs: Job[] = Array.from({ length: 50 }, (_, index) => {
       id: `PROC-${(index + 1).toString().padStart(3, '0')}`,
       description: equipment.process,
     },
+    status: 'In progress',
     jobInstruction: jobInstructions[instructionIndex],
     feedbackText: feedbackTemplates[feedbackIndex],
     priority: priorities[priorityIndex],
