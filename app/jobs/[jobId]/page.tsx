@@ -165,9 +165,9 @@ export default function JobDetailPage() {
                     <div className="flex items-center gap-3 mb-1">
                       <h1 className="text-2xl font-bold tracking-tight">{job.equipment.id} - {job.equipment.name}</h1>
                       <div className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${
-                        job.priority === 'HIGH' ? 'bg-red-100 text-red-700 border-red-200' :
-                        job.priority === 'MEDIUM' ? 'bg-blue-100 text-blue-700 border-blue-200' :
-                        'bg-emerald-100 text-emerald-700 border-emerald-200'
+                        job.priority === 'HIGH' ? 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/50 dark:text-red-300 dark:border-red-800' :
+                        job.priority === 'MEDIUM' ? 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-800' :
+                        'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/50 dark:text-emerald-300 dark:border-emerald-800'
                       }`}>
                         {job.priority}
                       </div>

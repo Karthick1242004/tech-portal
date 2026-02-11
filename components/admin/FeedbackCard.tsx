@@ -29,21 +29,21 @@ export function FeedbackCard({ feedback, index = 0 }: FeedbackCardProps) {
     const getPriorityStyles = (hours: number) => {
     if (hours >= 8) {
       return {
-        card: 'border-rose-200/60 bg-gradient-to-br from-white via-rose-50 to-rose-50/30',
-        badge: 'bg-rose-100 text-rose-700 border-rose-300',
-        icon: 'text-rose-500'
+        card: 'border-rose-200/60 dark:border-rose-500/20 bg-gradient-to-br from-white via-rose-50 to-rose-50/30 dark:from-slate-950 dark:via-rose-950/10 dark:to-rose-900/5',
+        badge: 'bg-rose-100 text-rose-700 border-rose-300 dark:bg-rose-950/50 dark:text-rose-400 dark:border-rose-900',
+        icon: 'text-rose-500 dark:text-rose-400'
       };
     } else if (hours >= 4) {
       return {
-        card: 'border-blue-200/60 bg-gradient-to-br from-white via-blue-50 to-blue-50/30',
-        badge: 'bg-blue-100 text-blue-700 border-blue-300',
-        icon: 'text-blue-500'
+        card: 'border-blue-200/60 dark:border-blue-500/20 bg-gradient-to-br from-white via-blue-50 to-blue-50/30 dark:from-slate-950 dark:via-blue-950/10 dark:to-blue-900/5',
+        badge: 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-950/50 dark:text-blue-400 dark:border-blue-900',
+        icon: 'text-blue-500 dark:text-blue-400'
       };
     } else {
       return {
-        card: 'border-emerald-200/60 bg-gradient-to-br from-white via-emerald-50 to-emerald-50/30',
-        badge: 'bg-emerald-100 text-emerald-700 border-emerald-300',
-        icon: 'text-emerald-500'
+        card: 'border-emerald-200/60 dark:border-emerald-500/20 bg-gradient-to-br from-white via-emerald-50 to-emerald-50/30 dark:from-slate-950 dark:via-emerald-950/10 dark:to-emerald-900/5',
+        badge: 'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-950/50 dark:text-emerald-400 dark:border-emerald-900',
+        icon: 'text-emerald-500 dark:text-emerald-400'
       };
     }
   };

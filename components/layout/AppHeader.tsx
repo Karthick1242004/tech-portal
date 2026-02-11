@@ -3,6 +3,7 @@
 import { useSessionStore } from '@/store/session.store';
 import { Button } from '@/components/ui/button';
 import { LogOut, LayoutGrid } from 'lucide-react';
+import { ModeToggle } from '@/components/ui/mode-toggle';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import {
@@ -45,6 +46,7 @@ export function AppHeader() {
 
         {isAuthenticated && (
           <div className="flex items-center gap-2">
+            <ModeToggle />
 
             {userRole === 'admin' && (
               <Tooltip>

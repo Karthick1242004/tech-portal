@@ -19,25 +19,25 @@ export function JobInfo({ job, translatedDescription, translatedInstruction, isT
   // Priority Theme Configuration
   const priorityTheme = {
     HIGH: {
-      color: 'text-red-600',
-      gradient: 'bg-gradient-to-br from-red-50 to-transparent border-red-100',
-      iconBg: 'bg-red-100',
-      badge: 'bg-red-100 text-red-700 hover:bg-red-200 border-red-200',
-      separator: 'bg-red-200'
+      color: 'text-red-600 dark:text-red-400',
+      gradient: 'bg-gradient-to-br from-red-50 to-transparent dark:from-red-950/30 border-red-100 dark:border-red-900/50',
+      iconBg: 'bg-red-100 dark:bg-red-900/50',
+      badge: 'bg-red-100 text-red-700 hover:bg-red-200 border-red-200 dark:bg-red-900/50 dark:text-red-300 dark:border-red-800',
+      separator: 'bg-red-200 dark:bg-red-800'
     },
     MEDIUM: {
-      color: 'text-blue-600',
-      gradient: 'bg-gradient-to-br from-blue-50 to-transparent border-blue-100',
-      iconBg: 'bg-blue-100',
-      badge: 'bg-blue-100 text-blue-700 hover:bg-blue-200 border-blue-200',
-      separator: 'bg-blue-200'
+      color: 'text-blue-600 dark:text-blue-400',
+      gradient: 'bg-gradient-to-br from-blue-50 to-transparent dark:from-blue-950/30 border-blue-100 dark:border-blue-900/50',
+      iconBg: 'bg-blue-100 dark:bg-blue-900/50',
+      badge: 'bg-blue-100 text-blue-700 hover:bg-blue-200 border-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-800',
+      separator: 'bg-blue-200 dark:bg-blue-800'
     },
     LOW: {
-      color: 'text-emerald-600',
-      gradient: 'bg-gradient-to-br from-emerald-50 to-transparent border-emerald-100',
-      iconBg: 'bg-emerald-100',
-      badge: 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-emerald-200',
-      separator: 'bg-emerald-200'
+      color: 'text-emerald-600 dark:text-emerald-400',
+      gradient: 'bg-gradient-to-br from-emerald-50 to-transparent dark:from-emerald-950/30 border-emerald-100 dark:border-emerald-900/50',
+      iconBg: 'bg-emerald-100 dark:bg-emerald-900/50',
+      badge: 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-emerald-200 dark:bg-emerald-900/50 dark:text-emerald-300 dark:border-emerald-800',
+      separator: 'bg-emerald-200 dark:bg-emerald-800'
     }
   };
 

@@ -12,22 +12,22 @@ interface JobCardProps {
 export function JobCard({ job, index = 0 }: JobCardProps) {
   const priorityStyles = {
     HIGH: {
-      card: 'border-red-200/60 bg-gradient-to-br from-white via-red-50 to-red-50/30',
-      badge: 'bg-red-100 text-red-700 border-red-300',
+      card: 'border-red-200/60 dark:border-red-500/20 bg-gradient-to-br from-white via-red-50 to-red-50/30 dark:from-slate-950 dark:via-red-950/10 dark:to-red-900/5',
+      badge: 'bg-red-100 text-red-700 border-red-300 dark:bg-red-950/50 dark:text-red-400 dark:border-red-900',
       dot: 'bg-red-500 shadow-lg shadow-red-500/50',
-      icon: 'text-red-500'
+      icon: 'text-red-500 dark:text-red-400'
     },
     MEDIUM: {
-      card: 'border-blue-200/60 bg-gradient-to-br from-white via-blue-50 to-blue-50/30',
-      badge: 'bg-blue-100 text-blue-700 border-blue-300',
+      card: 'border-blue-200/60 dark:border-blue-500/20 bg-gradient-to-br from-white via-blue-50 to-blue-50/30 dark:from-slate-950 dark:via-blue-950/10 dark:to-blue-900/5',
+      badge: 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-950/50 dark:text-blue-400 dark:border-blue-900',
       dot: 'bg-blue-500 shadow-lg shadow-blue-500/50',
-      icon: 'text-blue-500'
+      icon: 'text-blue-500 dark:text-blue-400'
     },
     LOW: {
-      card: 'border-emerald-200/60 bg-gradient-to-br from-white via-emerald-50 to-emerald-50/30',
-      badge: 'bg-emerald-100 text-emerald-700 border-emerald-300',
+      card: 'border-emerald-200/60 dark:border-emerald-500/20 bg-gradient-to-br from-white via-emerald-50 to-emerald-50/30 dark:from-slate-950 dark:via-emerald-950/10 dark:to-emerald-900/5',
+      badge: 'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-950/50 dark:text-emerald-400 dark:border-emerald-900',
       dot: 'bg-emerald-500 shadow-lg shadow-emerald-500/50',
-      icon: 'text-emerald-500'
+      icon: 'text-emerald-500 dark:text-emerald-400'
     }
   };
 

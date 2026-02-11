@@ -82,7 +82,7 @@ export default function LoginPage() {
           <div className="py-4 relative group cursor-pointer" onClick={handleSimulateScan} title="Click to simulate scan">
             <QrScanner />
             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/10 rounded-2xl">
-                 <span className="bg-white px-3 py-1 rounded shadow text-sm font-medium">Click to Simulate Scan</span>
+                 <span className="bg-white dark:bg-slate-800 dark:text-slate-200 px-3 py-1 rounded shadow text-sm font-medium">Click to Simulate Scan</span>
             </div>
           </div>
 
