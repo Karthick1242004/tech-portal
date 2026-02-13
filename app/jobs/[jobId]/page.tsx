@@ -6,8 +6,7 @@ import { notFound } from 'next/navigation';
 import { useSessionStore } from '@/store/session.store';
 import { useTranslationStore } from '@/store/translation.store';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Info, ImageIcon, MessageSquare } from 'lucide-react';
 import { getJobById } from '@/lib/api';
 import { JobInfo } from '@/components/jobs/JobInfo';
 import { JobImages } from '@/components/jobs/JobImages';
@@ -15,7 +14,6 @@ import { JobFeedback } from '@/components/jobs/JobFeedback';
 import { JobInfoSkeleton } from '@/components/jobs/JobInfoSkeleton';
 import { JobImagesSkeleton } from '@/components/jobs/JobImagesSkeleton';
 import { JobFeedbackSkeleton } from '@/components/jobs/JobFeedbackSkeleton';
-import { LanguageSelector } from '@/components/jobs/LanguageSelector';
 import type { Job } from '@/lib/mock-jobs';
 
 export default function JobDetailPage() {
@@ -31,6 +29,7 @@ export default function JobDetailPage() {
   const [isTranslating, setIsTranslating] = useState(false);
   const [translatedDescription, setTranslatedDescription] = useState<string | null>(null);
   const [translatedInstruction, setTranslatedInstruction] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'info' | 'images' | 'feedback'>('info');
   
   // Shared state for Feedback and Images
   const [feedbackImages, setFeedbackImages] = useState<File[]>([]);
@@ -144,52 +143,21 @@ export default function JobDetailPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b">
-        <div className="flex justify-center">
-          <div className="w-full max-w-2xl px-4 py-2">
-            <Button
-              variant="ghost"
-              onClick={() => router.push('/jobs')}
-              className="gap-2 mb-2"
-              aria-label="Navigate back to jobs list"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Jobs
-            </Button>
-
-              {job && (
-                <div className="space-y-3">
-                  <div>
-                    <div className="flex items-center gap-3 mb-1">
-                      <h1 className="text-2xl font-bold tracking-tight">{job.equipment.id} - {job.equipment.name}</h1>
-                      <div className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${
-                        job.priority === 'HIGH' ? 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/50 dark:text-red-300 dark:border-red-800' :
-                        job.priority === 'MEDIUM' ? 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-800' :
-                        'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/50 dark:text-emerald-300 dark:border-emerald-800'
-                      }`}>
-                        {job.priority}
-                      </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {job.processFunction.id} - {job.processFunction.description}
-                    </p>
-                  </div>
-                  <LanguageSelector
-                    value={currentLanguage}
-                    onChange={handleLanguageChange}
-                    disabled={isTranslating}
-                  />
-                </div>
-              )}
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen flex flex-col pb-24">
+      {/* Floating Back Button - Pushed down to avoid logo */}
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={() => router.push('/jobs')}
+        className="fixed top-14 left-4 z-50 rounded-full shadow-lg bg-background/80 backdrop-blur border-2 hover:scale-110 transition-transform"
+        aria-label="Navigate back to jobs list"
+      >
+        <ArrowLeft className="w-5 h-5" />
+      </Button>
 
       {/* Content */}
-      <main className="flex-1 flex justify-center">
-        <div className="w-full max-w-2xl px-4 py-3">
+      <main className="flex-1 flex justify-center pt-4">
+        <div className="w-full max-w-2xl px-4">
           {/* Error State */}
           {error && !isLoading && (
             <div className="text-center py-12">
@@ -204,17 +172,11 @@ export default function JobDetailPage() {
             </div>
           )}
 
-          {/* Job Details */}
+          {/* Job Details - Tab Content */}
           {!error && (
-            <Tabs defaultValue="info" className="w-full">
-              <TabsList className="grid w-full grid-cols-3" role="tablist" aria-label="Job details sections">
-                <TabsTrigger value="info" aria-label="View job information">Info</TabsTrigger>
-                <TabsTrigger value="images" aria-label="View job images">Images</TabsTrigger>
-                <TabsTrigger value="feedback" aria-label="Submit job feedback">Feedback</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="info" className="mt-3">
-                {isLoading ? (
+            <>
+              {activeTab === 'info' && (
+                isLoading ? (
                   <JobInfoSkeleton />
                 ) : (
                   job && (
@@ -223,13 +185,15 @@ export default function JobDetailPage() {
                       translatedDescription={translatedDescription || undefined}
                       translatedInstruction={translatedInstruction || undefined}
                       isTranslating={isTranslating}
+                      currentLanguage={currentLanguage}
+                      onLanguageChange={handleLanguageChange}
                     />
                   )
-                )}
-              </TabsContent>
+                )
+              )}
 
-              <TabsContent value="images" className="mt-3">
-                {isLoading ? <JobImagesSkeleton /> : job && 
+              {activeTab === 'images' && (
+                isLoading ? <JobImagesSkeleton /> : job && 
                   <JobImages 
                     job={job} 
                     selectedImages={feedbackImages}
@@ -237,23 +201,67 @@ export default function JobDetailPage() {
                     previewUrls={feedbackPreviewUrls}
                     setPreviewUrls={setFeedbackPreviewUrls}
                   />
-                }
-              </TabsContent>
+              )}
 
-              <TabsContent value="feedback" className="mt-3">
-                {isLoading ? <JobFeedbackSkeleton /> : job && 
+              {activeTab === 'feedback' && (
+                isLoading ? <JobFeedbackSkeleton /> : job && 
                   <JobFeedback 
                     job={job} 
                     selectedImages={feedbackImages}
                     setSelectedImages={setFeedbackImages}
                     setPreviewUrls={setFeedbackPreviewUrls}
                   />
-                }
-              </TabsContent>
-            </Tabs>
+              )}
+            </>
           )}
         </div>
       </main>
+
+      {/* Floating Bottom Dock - Compact and matched radius */}
+      {!error && (
+        <div className="fixed bottom-4 left-4 right-4 z-50 flex justify-center">
+          <div className="bg-background/95 backdrop-blur-lg border rounded-xl shadow-2xl p-1 flex gap-1 max-w-md w-full">
+            <button
+              onClick={() => setActiveTab('info')}
+              className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2 px-4 rounded-lg transition-all ${
+                activeTab === 'info'
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'hover:bg-muted text-muted-foreground hover:text-foreground'
+              }`}
+              aria-label="View job information"
+            >
+              <Info className="w-5 h-5" />
+              <span className="text-[10px] font-medium">Info</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('images')}
+              className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2 px-4 rounded-lg transition-all ${
+                activeTab === 'images'
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'hover:bg-muted text-muted-foreground hover:text-foreground'
+              }`}
+              aria-label="View job images"
+            >
+              <ImageIcon className="w-5 h-5" />
+              <span className="text-[10px] font-medium">Images</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('feedback')}
+              className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2 px-4 rounded-lg transition-all ${
+                activeTab === 'feedback'
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'hover:bg-muted text-muted-foreground hover:text-foreground'
+              }`}
+              aria-label="Submit job feedback"
+            >
+              <MessageSquare className="w-5 h-5" />
+              <span className="text-[10px] font-medium">Feedback</span>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

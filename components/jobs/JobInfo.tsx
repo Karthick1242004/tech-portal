@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Phone, User, AlertTriangle, Loader2, Hash, Settings, Calendar, X, ImageIcon } from 'lucide-react';
+import { Clock, Phone, User, AlertTriangle, Loader2, Hash, Settings, Calendar, X, ImageIcon, Languages } from 'lucide-react';
 import { format } from 'date-fns';
 import type { Job } from '@/lib/mock-jobs';
 
@@ -12,9 +12,11 @@ interface JobInfoProps {
   translatedDescription?: string;
   translatedInstruction?: string;
   isTranslating?: boolean;
+  currentLanguage?: string;
+  onLanguageChange?: (language: string) => void;
 }
 
-export function JobInfo({ job, translatedDescription, translatedInstruction, isTranslating }: JobInfoProps) {
+export function JobInfo({ job, translatedDescription, translatedInstruction, isTranslating, currentLanguage, onLanguageChange }: JobInfoProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   // Helper to format dates safely
@@ -30,13 +32,19 @@ export function JobInfo({ job, translatedDescription, translatedInstruction, isT
   // Priority Theme Configuration
   const priorityTheme = {
     HIGH: {
-      badge: 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/50 dark:text-red-300 dark:border-red-800',
+      badge: 'bg-red-500 text-white border-red-600 shadow-sm',
+      card: 'border-red-500/50 bg-red-500/10 dark:bg-red-950/40 shadow-sm shadow-red-500/10 backdrop-blur-xs',
+      icon: 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400'
     },
     MEDIUM: {
       badge: 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-800',
+      card: 'border-blue-500/50 bg-blue-500/10 dark:bg-blue-950/40 shadow-sm shadow-blue-500/10 backdrop-blur-xs',
+      icon: 'bg-primary/10 text-primary'
     },
     LOW: {
       badge: 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/50 dark:text-emerald-300 dark:border-emerald-800',
+      card: 'border-emerald-500/50 bg-emerald-500/10 dark:bg-emerald-950/40 shadow-sm shadow-emerald-500/10 backdrop-blur-xs',
+      icon: 'bg-primary/10 text-primary'
     }
   };
 
@@ -46,11 +54,11 @@ export function JobInfo({ job, translatedDescription, translatedInstruction, isT
     <>
       <div className="space-y-3">
         {/* Container 1: Job Metadata */}
-        <Card className="p-4">
+        <Card className={`p-4 ${theme.card}`}>
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Hash className="w-5 h-5 text-primary" />
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${theme.icon}`}>
+                <Hash className="w-5 h-5" />
               </div>
               <div>
                 <p className="text-xs text-muted-foreground uppercase tracking-wide">Job ID</p>
@@ -95,7 +103,21 @@ export function JobInfo({ job, translatedDescription, translatedInstruction, isT
         {/* Container 2: Description & Instructions */}
         <Card className="p-4 space-y-4">
           <div className="space-y-1">
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Description</h3>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Description</h3>
+              {currentLanguage && onLanguageChange && (
+                <select
+                  value={currentLanguage}
+                  onChange={(e) => onLanguageChange(e.target.value)}
+                  disabled={isTranslating}
+                  className="text-xs border rounded px-2 py-1 bg-background"
+                >
+                  <option value="en">English</option>
+                  <option value="ta">Tamil</option>
+                  <option value="hi">Hindi</option>
+                </select>
+              )}
+            </div>
             {isTranslating ? (
               <div className="flex items-center gap-2 py-2">
                 <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
