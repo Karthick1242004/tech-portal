@@ -58,8 +58,11 @@ export class ApiClient {
 
         // Try to parse error message from JSON
         let errorMessage = response.statusText;
+        let errorData: any = {};
+
         try {
           const errorJson = await response.json();
+          errorData = errorJson;
           errorMessage = errorJson.message || errorJson.error || errorMessage;
         } catch (e) {
           // fallback to text
@@ -67,9 +70,10 @@ export class ApiClient {
           if (text) errorMessage = text;
         }
 
-        const error: ApiError = {
+        const error: ApiError & { code?: string } = {
           message: errorMessage,
           status: response.status,
+          ...(errorData.code && { code: errorData.code })
         };
         throw error;
       }

@@ -15,10 +15,13 @@ import { JobInfoSkeleton } from '@/components/jobs/JobInfoSkeleton';
 import { JobImagesSkeleton } from '@/components/jobs/JobImagesSkeleton';
 import { JobFeedbackSkeleton } from '@/components/jobs/JobFeedbackSkeleton';
 import type { Job } from '@/lib/mock-jobs';
+import { useToast } from '@/hooks/use-toast';
+import { ToastAction } from '@/components/ui/toast';
 
 export default function JobDetailPage() {
   const router = useRouter();
   const params = useParams();
+  const { toast } = useToast();
   const { isAuthenticated, isTestMode } = useSessionStore();
   const { currentLanguage, setLanguage, getTranslation, setTranslation } = useTranslationStore();
   const jobId = params.jobId as string;
@@ -54,9 +57,27 @@ export default function JobDetailPage() {
         } else {
           setJob(jobData);
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('[v0] Failed to load job:', err);
-        setError('Failed to load job details');
+        
+        // Handle Authentication Error specifically
+        if (err.status === 401 || err.code === 'AUTH_FAILED' || err.message?.includes('Authentication failed')) {
+           toast({
+             variant: "destructive",
+             className: "text-white",
+             title: "Authentication failed",
+             description: "Please Login again",
+             duration: 5000,
+             action: (
+               <ToastAction altText="Login" onClick={() => router.push('/login')} className="bg-white text-destructive hover:bg-white/90">
+                 Login
+               </ToastAction>
+             ),
+           });
+           setError('Authentication failed');
+        } else {
+           setError('Failed to load job details');
+        }
       } finally {
         setIsLoading(false);
       }

@@ -12,9 +12,12 @@ import { Loader2, Briefcase } from 'lucide-react';
 import type { Job } from '@/lib/mock-jobs';
 import { JobFilterState, INITIAL_FILTER_STATE } from '@/types/filters';
 import { filterJobs } from '@/lib/filter-utils';
+import { useToast } from '@/hooks/use-toast';
+import { ToastAction } from '@/components/ui/toast';
 
 export default function JobsPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const { isAuthenticated, isTestMode, vendorId } = useSessionStore();
   const [allJobs, setAllJobs] = useState<Job[]>([]);
   const [page, setPage] = useState(1);
@@ -69,8 +72,25 @@ export default function JobsPage() {
         setTotalJobs(result.total);
         setHasNextPage(result.hasMore);
         setPage(1);
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to load jobs:', error);
+        
+        // Handle Authentication Error specifically
+        if (error.status === 401 || error.code === 'AUTH_FAILED' || error.message?.includes('Authentication failed')) {
+           toast({
+             variant: "destructive",
+             className: "text-white",
+             title: "Authentication failed",
+             description: "Please Login again",
+             duration: 5000,
+             action: (
+               <ToastAction altText="Login" onClick={() => router.push('/login')} className="bg-white text-destructive hover:bg-white/90">
+                 Login
+               </ToastAction>
+             ),
+           });
+        }
+        
         setIsError(true);
       } finally {
         setIsLoading(false);
