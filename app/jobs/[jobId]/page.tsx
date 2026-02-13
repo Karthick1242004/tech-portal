@@ -148,11 +148,11 @@ export default function JobDetailPage() {
       {/* Header */}
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b">
         <div className="flex justify-center">
-          <div className="w-full max-w-2xl px-4 py-4">
+          <div className="w-full max-w-2xl px-4 py-2">
             <Button
               variant="ghost"
               onClick={() => router.push('/jobs')}
-              className="gap-2 mb-4"
+              className="gap-2 mb-2"
               aria-label="Navigate back to jobs list"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -189,7 +189,7 @@ export default function JobDetailPage() {
 
       {/* Content */}
       <main className="flex-1 flex justify-center">
-        <div className="w-full max-w-2xl px-4 py-6">
+        <div className="w-full max-w-2xl px-4 py-3">
           {/* Error State */}
           {error && !isLoading && (
             <div className="text-center py-12">
@@ -213,7 +213,7 @@ export default function JobDetailPage() {
                 <TabsTrigger value="feedback" aria-label="Submit job feedback">Feedback</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="info" className="mt-6">
+              <TabsContent value="info" className="mt-3">
                 {isLoading ? (
                   <JobInfoSkeleton />
                 ) : (
@@ -228,7 +228,7 @@ export default function JobDetailPage() {
                 )}
               </TabsContent>
 
-              <TabsContent value="images" className="mt-6">
+              <TabsContent value="images" className="mt-3">
                 {isLoading ? <JobImagesSkeleton /> : job && 
                   <JobImages 
                     job={job} 
@@ -240,7 +240,7 @@ export default function JobDetailPage() {
                 }
               </TabsContent>
 
-              <TabsContent value="feedback" className="mt-6">
+              <TabsContent value="feedback" className="mt-3">
                 {isLoading ? <JobFeedbackSkeleton /> : job && 
                   <JobFeedback 
                     job={job} 

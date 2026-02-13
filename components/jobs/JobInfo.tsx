@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Phone, User, AlertTriangle, Loader2, Hash, Settings, Calendar, AlertCircle, X, ImageIcon } from 'lucide-react';
+import { Clock, Phone, User, AlertTriangle, Loader2, Hash, Settings, Calendar, X, ImageIcon } from 'lucide-react';
+import { format } from 'date-fns';
 import type { Job } from '@/lib/mock-jobs';
 
 interface JobInfoProps {
@@ -16,179 +17,167 @@ interface JobInfoProps {
 export function JobInfo({ job, translatedDescription, translatedInstruction, isTranslating }: JobInfoProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+  // Helper to format dates safely
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return 'N/A';
+    try {
+      return format(new Date(dateString), 'dd/MM/yyyy - HH:mm');
+    } catch {
+      return dateString;
+    }
+  };
+
   // Priority Theme Configuration
   const priorityTheme = {
     HIGH: {
-      color: 'text-red-600 dark:text-red-400',
-      gradient: 'bg-gradient-to-br from-red-50 to-transparent dark:from-red-950/30 border-red-100 dark:border-red-900/50',
-      iconBg: 'bg-red-100 dark:bg-red-900/50',
-      badge: 'bg-red-100 text-red-700 hover:bg-red-200 border-red-200 dark:bg-red-900/50 dark:text-red-300 dark:border-red-800',
-      separator: 'bg-red-200 dark:bg-red-800'
+      badge: 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/50 dark:text-red-300 dark:border-red-800',
     },
     MEDIUM: {
-      color: 'text-blue-600 dark:text-blue-400',
-      gradient: 'bg-gradient-to-br from-blue-50 to-transparent dark:from-blue-950/30 border-blue-100 dark:border-blue-900/50',
-      iconBg: 'bg-blue-100 dark:bg-blue-900/50',
-      badge: 'bg-blue-100 text-blue-700 hover:bg-blue-200 border-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-800',
-      separator: 'bg-blue-200 dark:bg-blue-800'
+      badge: 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-800',
     },
     LOW: {
-      color: 'text-emerald-600 dark:text-emerald-400',
-      gradient: 'bg-gradient-to-br from-emerald-50 to-transparent dark:from-emerald-950/30 border-emerald-100 dark:border-emerald-900/50',
-      iconBg: 'bg-emerald-100 dark:bg-emerald-900/50',
-      badge: 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-emerald-200 dark:bg-emerald-900/50 dark:text-emerald-300 dark:border-emerald-800',
-      separator: 'bg-emerald-200 dark:bg-emerald-800'
+      badge: 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/50 dark:text-emerald-300 dark:border-emerald-800',
     }
   };
 
   const theme = priorityTheme[job.priority];
 
-  // Helper for staggered animation
-  const getAnimationDelay = (index: number) => ({
-    animationDelay: `${index * 50}ms`
-  });
-
   return (
     <>
-      <div className="space-y-4">
-        {/* Essential Info Group */}
-        <div className="grid grid-cols-2 gap-4 animate-slideUp" style={getAnimationDelay(0)}>
-          <Card className={`p-4 flex flex-col justify-between ${theme.gradient} border shadow-sm`}>
-            <div className="flex items-start justify-between">
-               <div className={`w-8 h-8 rounded-lg ${theme.iconBg} flex items-center justify-center mb-3`}>
-                  <Hash className={`w-4 h-4 ${theme.color}`} />
-               </div>
-               <Badge variant="outline" className={`${theme.badge} border shadow-sm`}>
-                 {job.priority}
-               </Badge>
+      <div className="space-y-3">
+        {/* Container 1: Job Metadata */}
+        <Card className="p-4">
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Hash className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Job ID</p>
+                <p className="text-base font-bold">{job.id}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Job ID</p>
-              <p className="font-bold text-lg">{job.id}</p>
+            <Badge variant="outline" className={`${theme.badge} border px-3 py-1 text-xs`}>
+              {job.priority}
+            </Badge>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-x-6 gap-y-4 pt-4 border-t">
+             {/* Process */}
+            <div className="flex items-start gap-2">
+              <Settings className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+              <div className="min-w-0">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Process</p>
+                <p className="text-sm font-medium line-clamp-1">{job.processFunction.description}</p>
+              </div>
             </div>
-          </Card>
 
-          <Card className="p-4 flex flex-col justify-between border shadow-sm hover:bg-muted/50 transition-colors">
-            <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center mb-3">
-               <Settings className="w-4 h-4 text-muted-foreground" />
+            {/* Vendor */}
+            <div className="flex items-start gap-2">
+              <User className="w-4 h-4 text-orange-600 dark:text-orange-400 flex-shrink-0 mt-0.5" />
+              <div className="min-w-0">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Vendor</p>
+                <p className="text-sm font-medium line-clamp-1">{job.vendor || 'N/A'}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Process</p>
-              <p className="font-semibold text-sm line-clamp-2">{job.processFunction.description}</p>
-            </div>
-          </Card>
-        </div>
 
-        {/* Enriched Info Grid */}
-        <div className="grid grid-cols-2 gap-4 animate-slideUp" style={getAnimationDelay(0)}>
-          <Card className="p-4 flex flex-col justify-between border shadow-sm hover:bg-muted/50 transition-colors">
-            <div className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/50 flex items-center justify-center mb-3">
-               <User className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+            {/* Order Type */}
+            <div className="flex items-start gap-2 col-span-2">
+              <Settings className="w-4 h-4 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-0.5" />
+              <div className="min-w-0">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Order Type</p>
+                <p className="text-sm font-medium line-clamp-1">{job.workOrderType || 'N/A'}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Vendor</p>
-              <p className="font-semibold text-sm line-clamp-2">{job.vendor || 'N/A'}</p>
-            </div>
-          </Card>
-
-          <Card className="p-4 flex flex-col justify-between border shadow-sm hover:bg-muted/50 transition-colors">
-             <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center mb-3">
-                <Settings className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-             </div>
-             <div>
-               <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Order Type</p>
-               <p className="font-semibold text-sm line-clamp-2">{job.workOrderType || 'N/A'}</p>
-             </div>
-          </Card>
-        </div>
-
-        {/* Description Card */}
-        <Card className="p-5 shadow-sm animate-slideUp border-l-4 border-l-primary/20" style={getAnimationDelay(1)}>
-          <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-            Description
-          </h3>
-          {isTranslating ? (
-            <div className="flex items-center gap-2 py-2">
-              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Translating...</span>
-            </div>
-          ) : (
-            <p className="text-md font-bold text-foreground/80 leading-relaxed">
-              {translatedDescription || job.description}
-            </p>
-          )}
+          </div>
         </Card>
 
-        {/* Instructions Card - Highlighted */}
-        <Card className={`p-5 shadow-sm animate-slideUp border-l-4 ${theme.separator}`} style={{ ...getAnimationDelay(2), borderColor: 'var(--border)' }}>
-           <div className="flex items-center gap-2 mb-3 text-amber-600 dark:text-amber-500">
-             <AlertTriangle className="w-4 h-4" />
-             <h3 className="text-sm font-semibold">Instructions & Safety</h3>
-           </div>
-          {isTranslating ? (
-            <div className="flex items-center gap-2 py-2">
-              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Translating...</span>
+        {/* Container 2: Description & Instructions */}
+        <Card className="p-4 space-y-4">
+          <div className="space-y-1">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Description</h3>
+            {isTranslating ? (
+              <div className="flex items-center gap-2 py-2">
+                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Translating...</span>
+              </div>
+            ) : (
+              <p className="text-sm text-foreground/90 leading-relaxed font-medium">
+                {translatedDescription || job.description}
+              </p>
+            )}
+          </div>
+          
+          {/* No Divider - Continuous Flow */}
+          
+          <div className="space-y-2">
+            <div className="flex items-center gap-1.5">
+              <AlertTriangle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-500" />
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-500">Instructions & Safety</h3>
             </div>
-          ) : (
-            <div 
-              className="text-md font-bold text-foreground/80 leading-relaxed bg-amber-50/50 dark:bg-amber-950/10 p-3 rounded-md border border-amber-100 dark:border-amber-900/20 prose prose-sm max-w-none"
-              dangerouslySetInnerHTML={{ __html: translatedInstruction || job.jobInstruction }}
-            />
-          )}
+            {isTranslating ? (
+              <div className="flex items-center gap-2 py-2">
+                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Translating...</span>
+              </div>
+            ) : (
+               <div 
+                className="bg-amber-50/50 dark:bg-amber-950/10 p-3 rounded-md text-sm text-foreground/90 leading-relaxed border border-amber-100 dark:border-amber-900/20"
+                dangerouslySetInnerHTML={{ __html: translatedInstruction || job.jobInstruction }}
+              />
+            )}
+          </div>
         </Card>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-slideUp" style={getAnimationDelay(3)}>
-          {/* Timeline */}
-          <Card className="p-4 shadow-sm">
-             <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Timeline</h4>
-             <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                   <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                      <Calendar className="w-4 h-4" />
-                   </div>
-                   <div>
-                      <p className="text-xs text-muted-foreground">Planned Start</p>
-                      <p className="text-sm font-medium">{job.plannedStart}</p>
-                   </div>
+        {/* Container 3: Timeline & Contact */}
+        <Card className="p-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {/* Timeline Column */}
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded bg-blue-50 dark:bg-blue-900/20 text-blue-600 flex items-center justify-center flex-shrink-0">
+                   <Calendar className="w-4 h-4" />
                 </div>
-                <div className="w-full h-px bg-border/50"></div>
-                <div className="flex items-center gap-3">
-                   <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                      <Clock className="w-4 h-4" />
-                   </div>
-                   <div>
-                      <p className="text-xs text-muted-foreground">Target End</p>
-                      <p className="text-sm font-medium">{job.targetEnd}</p>
-                   </div>
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground font-medium">Planned Start</p>
+                  <p className="text-sm font-semibold">{formatDate(job.plannedStart)}</p>
                 </div>
-             </div>
-          </Card>
-
-          {/* Contact */}
-          <Card className="p-4 shadow-sm">
-             <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Contact</h4>
-             <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden border">
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 flex items-center justify-center flex-shrink-0">
+                   <Clock className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground font-medium">Target End</p>
+                  <p className="text-sm font-semibold">{formatDate(job.targetEnd)}</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Contact Column - Separator on mobile if needed, but grid handles it */}
+            <div className="flex items-center gap-3 pt-3 sm:pt-0 sm:border-l sm:pl-6 border-t sm:border-t-0 border-border/50">
+               <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center border flex-shrink-0">
                   <User className="w-5 h-5 text-muted-foreground" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold">{job.contact.name}</p>
+               </div>
+               <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold truncate">{job.contact.name}</p>
                   <p className="text-xs text-muted-foreground">Supervisor</p>
-                </div>
-             </div>
-             <a href={`tel:${job.contact.phone}`} className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors text-sm text-primary font-medium">
-                <Phone className="w-3.5 h-3.5" />
-                {job.contact.phone}
-             </a>
-          </Card>
-        </div>
+               </div>
+               <a 
+                 href={`tel:${job.contact.phone}`} 
+                 className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                 aria-label={`Call ${job.contact.name}`}
+               >
+                 <Phone className="w-4 h-4" />
+               </a>
+            </div>
+          </div>
+        </Card>
 
-        {/* Equipment Images */}
-        <Card className="p-5 shadow-sm animate-slideUp" style={getAnimationDelay(4)}>
-          <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
-            <ImageIcon className="w-4 h-4 text-primary" />
+        {/* Container 4: Equipment Images */}
+        <Card className="p-4">
+          <h3 className="text-xs font-semibold uppercase tracking-wide mb-3 flex items-center gap-2 text-muted-foreground">
+            <ImageIcon className="w-4 h-4" />
             Job Images
           </h3>
           
@@ -198,7 +187,7 @@ export function JobInfo({ job, translatedDescription, translatedInstruction, isT
                 <div 
                   key={i} 
                   onClick={() => setSelectedImage(image)}
-                  className="group relative aspect-square rounded-lg border-2 border-border/50 overflow-hidden hover:ring-2 hover:ring-primary hover:scale-[1.02] transition-all duration-200 cursor-pointer shadow-sm"
+                  className="group relative aspect-square rounded-lg border border-border overflow-hidden hover:ring-2 hover:ring-primary hover:scale-[1.02] transition-all duration-200 cursor-pointer shadow-sm bg-muted/20"
                 >
                   <img
                     src={image}
@@ -211,11 +200,9 @@ export function JobInfo({ job, translatedDescription, translatedInstruction, isT
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-8 bg-muted/30 rounded-lg border border-dashed border-border group hover:bg-muted/50 transition-colors">
-              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                 <ImageIcon className="w-5 h-5 text-muted-foreground/50" />
-              </div>
-              <p className="text-sm text-muted-foreground font-medium">No image exists</p>
+            <div className="flex flex-col items-center justify-center py-6 bg-muted/30 rounded-lg border border-dashed border-border px-4 text-center">
+              <ImageIcon className="w-8 h-8 text-muted-foreground/30 mb-2" />
+              <p className="text-sm text-muted-foreground">No images available</p>
             </div>
           )}
         </Card>
