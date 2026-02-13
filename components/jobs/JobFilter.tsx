@@ -74,8 +74,8 @@ export function JobFilter({ filterState, onFilterChange, onReset, totalJobs }: J
   }
 
   const activeFilterCount = 
-    localState.priorities.length + 
-    (localState.dateRange?.from ? 1 : 0);
+    filterState.priorities.length + 
+    (filterState.dateRange?.from ? 1 : 0);
 
   const FilterContent = (
     <div className="grid gap-8 py-6">
@@ -149,17 +149,7 @@ export function JobFilter({ filterState, onFilterChange, onReset, totalJobs }: J
             selected={localState.dateRange}
             onSelect={(range) => setLocalState(prev => ({ ...prev, dateRange: range ? { from: range.from, to: range.to } : undefined }))}
             className="rounded-lg w-full"
-            classNames={{
-              head_cell: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
-              cell: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-              day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-slate-100 rounded-md transition-colors",
-              day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground rounded-md",
-              day_today: "bg-slate-100 text-accent-foreground",
-              day_outside: "text-muted-foreground opacity-50",
-              day_disabled: "text-muted-foreground opacity-50",
-              day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
-              day_hidden: "invisible",
-            }}
+            weekStartsOn={0}
           />
         </div>
       </div>
@@ -170,11 +160,11 @@ export function JobFilter({ filterState, onFilterChange, onReset, totalJobs }: J
     return (
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
-          <Button variant="outline" size="sm" className="h-9 gap-2">
+          <Button variant="outline" size="sm" className="h-10 rounded-full px-4 gap-2 border-slate-200 shadow-sm scale-100 active:scale-95 transition-all bg-white hover:bg-slate-50 text-slate-700 dark:bg-slate-900/50 dark:border-slate-800 dark:text-slate-200">
             <Filter className="h-4 w-4" />
-            Filter
+            <span className="hidden sm:inline">Filter</span>
             {activeFilterCount > 0 && (
-              <Badge variant="secondary" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
+              <Badge variant="secondary" className="ml-1 h-5 min-w-[1.25rem] rounded-full px-1 flex items-center justify-center text-[10px] bg-primary/10 text-primary">
                 {activeFilterCount}
               </Badge>
             )}
@@ -208,11 +198,11 @@ export function JobFilter({ filterState, onFilterChange, onReset, totalJobs }: J
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button variant="outline" size="sm" className="h-9 gap-2">
+        <Button variant="outline" size="sm" className="h-10 rounded-full px-4 gap-2 border-slate-200 shadow-sm scale-100 active:scale-95 transition-all bg-white hover:bg-slate-50 text-slate-700 dark:bg-slate-900/50 dark:border-slate-800 dark:text-slate-200">
           <Filter className="h-4 w-4" />
-          Filter
+          <span className="hidden sm:inline">Filter</span>
            {activeFilterCount > 0 && (
-              <Badge variant="secondary" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
+              <Badge variant="secondary" className="ml-1 h-5 min-w-[1.25rem] rounded-full px-1 flex items-center justify-center text-[10px] bg-primary/10 text-primary">
                 {activeFilterCount}
               </Badge>
             )}

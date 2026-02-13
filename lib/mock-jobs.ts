@@ -13,6 +13,9 @@ export interface Job {
   jobInstruction: string;
   feedbackText: string;
   priority: 'HIGH' | 'MEDIUM' | 'LOW';
+  priorityDescription?: string;
+  vendor?: string;
+  workOrderType?: string;
   plannedStart: string;
   targetEnd: string;
   images: string[];

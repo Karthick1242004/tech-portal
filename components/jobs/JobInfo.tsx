@@ -79,6 +79,29 @@ export function JobInfo({ job, translatedDescription, translatedInstruction, isT
           </Card>
         </div>
 
+        {/* Enriched Info Grid */}
+        <div className="grid grid-cols-2 gap-4 animate-slideUp" style={getAnimationDelay(0)}>
+          <Card className="p-4 flex flex-col justify-between border shadow-sm hover:bg-muted/50 transition-colors">
+            <div className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/50 flex items-center justify-center mb-3">
+               <User className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Vendor</p>
+              <p className="font-semibold text-sm line-clamp-2">{job.vendor || 'N/A'}</p>
+            </div>
+          </Card>
+
+          <Card className="p-4 flex flex-col justify-between border shadow-sm hover:bg-muted/50 transition-colors">
+             <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center mb-3">
+                <Settings className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+             </div>
+             <div>
+               <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Order Type</p>
+               <p className="font-semibold text-sm line-clamp-2">{job.workOrderType || 'N/A'}</p>
+             </div>
+          </Card>
+        </div>
+
         {/* Description Card */}
         <Card className="p-5 shadow-sm animate-slideUp border-l-4 border-l-primary/20" style={getAnimationDelay(1)}>
           <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
