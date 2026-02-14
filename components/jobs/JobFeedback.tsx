@@ -44,6 +44,7 @@ export function JobFeedback({ job, selectedImages, setSelectedImages, setPreview
         toast({
             title: 'Success',
             description: 'Feedback and images submitted successfully',
+            className: "text-white",
         });
         
         // Optional: Clear form or redirect

@@ -156,14 +156,23 @@ export default function JobsPage() {
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b">
         <div className="flex justify-center">
           <div className="w-full max-w-2xl px-4 py-6">
-            <div className="space-y-1">
-              <h1 className="text-2xl font-bold tracking-tight">Active Jobs</h1>
-              <p className="text-sm text-muted-foreground">
-                Vendor: {vendorId || 'ACME Industrial Services'}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Sorted by: Planned Start → Priority
-              </p>
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <h1 className="text-2xl font-bold tracking-tight">Active Jobs</h1>
+                <p className="text-sm text-muted-foreground">
+                  Vendor: {vendorId || 'ACME Industrial Services'}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Sorted by: Planned Start → Priority
+                </p>
+              </div>
+              <button
+                onClick={() => router.push('/jobs/report')}
+                className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors font-medium text-sm"
+              >
+                <span>+</span>
+                <span>Report New Job</span>
+              </button>
             </div>
           </div>
         </div>

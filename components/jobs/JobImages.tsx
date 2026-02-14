@@ -37,6 +37,7 @@ export function JobImages({ job, selectedImages, setSelectedImages, previewUrls,
             title: 'Maximum images reached',
             description: `You can only have a total of ${maxImages} images.`,
             variant: 'destructive',
+            className: "text-white",
         });
         return;
     }

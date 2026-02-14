@@ -247,3 +247,90 @@ export async function resetAdminPassword(userId: string, newPassword: string): P
 export async function deleteAdminUser(userId: string): Promise<void> {
   await apiClient.delete(`/admin/users/${userId}`);
 }
+
+// Report Job API
+import type { Equipment, ProcessFunction, WorkOrderType, ReportJobPayload, ReportJobResponse } from '@/types/report-job';
+
+export async function getEquipment(): Promise<Equipment[]> {
+  const response = await apiClient.get<{ success: boolean; data: any[] }>('/jobs/equipment');
+  return response.data.map((item: any) => ({
+    id: item.Id,
+    description: item.Description,
+    status: item.Status,
+    context: item.Context
+  }));
+}
+
+export async function getProcessFunctions(): Promise<ProcessFunction[]> {
+  const response = await apiClient.get<{ success: boolean; data: any[] }>('/jobs/process-functions');
+  return response.data.map((item: any) => ({
+    id: item.Id,
+    description: item.Description,
+    status: item.Status,
+    context: item.Context
+  }));
+}
+
+export async function getWorkOrderTypes(): Promise<WorkOrderType[]> {
+  const response = await apiClient.get<{ success: boolean; data: any[] }>('/jobs/work-order-types');
+  return response.data.map((item: any) => ({
+    id: item.Id,
+    description: item.Description,
+    status: item.Status,
+    context: item.Context
+  }));
+}
+
+export async function reportJob(payload: ReportJobPayload): Promise<ReportJobResponse> {
+  // Transform frontend camelCase to backend format
+  // Note: Context is an integer in backend, but we capture text. Appending text to Description.
+  const descriptionWithContext = payload.context
+    ? `${payload.description}\n\nContext: ${payload.context}`
+    : payload.description;
+
+  // Build payload with required fields
+  const backendPayload: any = {
+    Description: descriptionWithContext,
+    ReportText: payload.reporterText, // Mapped to ReportText (Problem Description)
+    EquipmentId: payload.equipmentId,
+    ProcessFunctionId: payload.processFunctionId,
+    WorkOrderTypeId: payload.workOrderTypeId,
+    ReportDate: payload.reportDate,
+  };
+
+  // Only include SiteId and SpaceId if they have values (to avoid validation errors)
+  if (payload.siteId && payload.siteId.trim()) {
+    backendPayload.SiteId = payload.siteId;
+  }
+  if (payload.specId && payload.specId.trim()) {
+    backendPayload.SpaceId = payload.specId;
+  }
+
+  // Include image fields if present
+  if (payload.imageFile1) backendPayload.ImageFile1 = payload.imageFile1;
+  if (payload.imageFile2) backendPayload.ImageFile2 = payload.imageFile2;
+  if (payload.imageFile3) backendPayload.ImageFile3 = payload.imageFile3;
+  if (payload.imageFile4) backendPayload.ImageFile4 = payload.imageFile4;
+  if (payload.imageFile5) backendPayload.ImageFile5 = payload.imageFile5;
+  if (payload.imageFile6) backendPayload.ImageFile6 = payload.imageFile6;
+  if (payload.imageFileBase64_1) backendPayload.ImageFileBase64_1 = payload.imageFileBase64_1;
+  if (payload.imageFileBase64_2) backendPayload.ImageFileBase64_2 = payload.imageFileBase64_2;
+  if (payload.imageFileBase64_3) backendPayload.ImageFileBase64_3 = payload.imageFileBase64_3;
+  if (payload.imageFileBase64_4) backendPayload.ImageFileBase64_4 = payload.imageFileBase64_4;
+  if (payload.imageFileBase64_5) backendPayload.ImageFileBase64_5 = payload.imageFileBase64_5;
+  if (payload.imageFileBase64_6) backendPayload.ImageFileBase64_6 = payload.imageFileBase64_6;
+  if (payload.imageFileName1) backendPayload.ImageFileName1 = payload.imageFileName1;
+  if (payload.imageFileName2) backendPayload.ImageFileName2 = payload.imageFileName2;
+  if (payload.imageFileName3) backendPayload.ImageFileName3 = payload.imageFileName3;
+  if (payload.imageFileName4) backendPayload.ImageFileName4 = payload.imageFileName4;
+  if (payload.imageFileName5) backendPayload.ImageFileName5 = payload.imageFileName5;
+  if (payload.imageFileName6) backendPayload.ImageFileName6 = payload.imageFileName6;
+
+  const response = await apiClient.post<{ success: boolean; data: any }>('/jobs/report', backendPayload);
+  return {
+    message: response.data.message,
+    successStatus: response.data.successStatus,
+    jobId: response.data.JobId
+  };
+}
+
