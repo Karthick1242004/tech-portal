@@ -22,6 +22,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
+import { ImageUploader, ImageFile } from '@/components/jobs/ImageUploader';
 
 export default function ReportJobPage() {
   const router = useRouter();
@@ -52,6 +53,9 @@ export default function ReportJobPage() {
   const [equipmentOpen, setEquipmentOpen] = useState(false);
   const [processFunctionOpen, setProcessFunctionOpen] = useState(false);
   const [workOrderTypeOpen, setWorkOrderTypeOpen] = useState(false);
+
+  // Image upload state
+  const [images, setImages] = useState<ImageFile[]>([]);
 
 
   // Load reference data on mount
@@ -84,6 +88,54 @@ export default function ReportJobPage() {
     }
   }, [isAuthenticated, isTestMode, toast]);
 
+  // Save images to localStorage when they change
+  useEffect(() => {
+    if (images.length > 0) {
+      const imagesToStore = images.map(img => ({
+        id: img.id,
+        dataUrl: img.dataUrl,
+        fileName: img.file.name,
+        fileType: img.file.type,
+        fileSize: img.file.size,
+      }));
+      localStorage.setItem('reportJobImages', JSON.stringify(imagesToStore));
+    } else {
+      localStorage.removeItem('reportJobImages');
+    }
+  }, [images]);
+
+  // Load images from localStorage on mount
+  useEffect(() => {
+    const loadStoredImages = async () => {
+      const stored = localStorage.getItem('reportJobImages');
+      if (stored) {
+        try {
+          const parsedImages = JSON.parse(stored);
+          const reconstructedImages = await Promise.all(
+            parsedImages.map(async (img: any) => {
+              const response = await fetch(img.dataUrl);
+              const blob = await response.blob();
+              const file = new File([blob], img.fileName, { type: img.fileType });
+              return {
+                id: img.id,
+                file,
+                preview: img.dataUrl,
+                dataUrl: img.dataUrl,
+              };
+            })
+          );
+          setImages(reconstructedImages);
+        } catch (error) {
+          console.error('Failed to load stored images:', error);
+          localStorage.removeItem('reportJobImages');
+        }
+      }
+    };
+    
+    loadStoredImages();
+  }, []);
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -113,7 +165,13 @@ export default function ReportJobPage() {
         reportDate: new Date(formData.reportDate).toISOString(),
       };
 
-      const result = await reportJob(payload);
+      // Extract File objects from ImageFile array
+      const imageFiles = images.map(img => img.file);
+
+      const result = await reportJob(payload, imageFiles);
+
+      // Clear localStorage on successful submission
+      localStorage.removeItem('reportJobImages');
 
       toast({
         title: 'Job Reported Successfully',
@@ -430,6 +488,15 @@ export default function ReportJobPage() {
                 placeholder="Add any additional context, notes, or observations..."
               />
             </div>
+
+            {/* Image Upload */}
+            <ImageUploader
+              images={images}
+              onImagesChange={setImages}
+              maxImages={4}
+              maxSizeMB={5}
+            />
+
 
             {/* Submit Button */}
             <div className="flex gap-4 pt-2 pb-8">

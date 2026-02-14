@@ -281,52 +281,43 @@ export async function getWorkOrderTypes(): Promise<WorkOrderType[]> {
   }));
 }
 
-export async function reportJob(payload: ReportJobPayload): Promise<ReportJobResponse> {
+export async function reportJob(payload: ReportJobPayload, images: File[] = []): Promise<ReportJobResponse> {
   // Transform frontend camelCase to backend format
   // Note: Context is an integer in backend, but we capture text. Appending text to Description.
   const descriptionWithContext = payload.context
     ? `${payload.description}\n\nContext: ${payload.context}`
     : payload.description;
 
-  // Build payload with required fields
-  const backendPayload: any = {
-    Description: descriptionWithContext,
-    ReportText: payload.reporterText, // Mapped to ReportText (Problem Description)
-    EquipmentId: payload.equipmentId,
-    ProcessFunctionId: payload.processFunctionId,
-    WorkOrderTypeId: payload.workOrderTypeId,
-    ReportDate: payload.reportDate,
-  };
+  // Use FormData for multipart upload
+  const formData = new FormData();
 
-  // Only include SiteId and SpaceId if they have values (to avoid validation errors)
+  // Add required fields
+  formData.append('Description', descriptionWithContext);
+  formData.append('ReportText', payload.reporterText);
+  formData.append('EquipmentId', payload.equipmentId);
+  formData.append('ProcessFunctionId', payload.processFunctionId);
+  formData.append('WorkOrderTypeId', payload.workOrderTypeId);
+  formData.append('ReportDate', payload.reportDate);
+
+  // Add optional fields if they have values
   if (payload.siteId && payload.siteId.trim()) {
-    backendPayload.SiteId = payload.siteId;
+    formData.append('SiteId', payload.siteId);
   }
   if (payload.specId && payload.specId.trim()) {
-    backendPayload.SpaceId = payload.specId;
+    formData.append('SpaceId', payload.specId);
   }
 
-  // Include image fields if present
-  if (payload.imageFile1) backendPayload.ImageFile1 = payload.imageFile1;
-  if (payload.imageFile2) backendPayload.ImageFile2 = payload.imageFile2;
-  if (payload.imageFile3) backendPayload.ImageFile3 = payload.imageFile3;
-  if (payload.imageFile4) backendPayload.ImageFile4 = payload.imageFile4;
-  if (payload.imageFile5) backendPayload.ImageFile5 = payload.imageFile5;
-  if (payload.imageFile6) backendPayload.ImageFile6 = payload.imageFile6;
-  if (payload.imageFileBase64_1) backendPayload.ImageFileBase64_1 = payload.imageFileBase64_1;
-  if (payload.imageFileBase64_2) backendPayload.ImageFileBase64_2 = payload.imageFileBase64_2;
-  if (payload.imageFileBase64_3) backendPayload.ImageFileBase64_3 = payload.imageFileBase64_3;
-  if (payload.imageFileBase64_4) backendPayload.ImageFileBase64_4 = payload.imageFileBase64_4;
-  if (payload.imageFileBase64_5) backendPayload.ImageFileBase64_5 = payload.imageFileBase64_5;
-  if (payload.imageFileBase64_6) backendPayload.ImageFileBase64_6 = payload.imageFileBase64_6;
-  if (payload.imageFileName1) backendPayload.ImageFileName1 = payload.imageFileName1;
-  if (payload.imageFileName2) backendPayload.ImageFileName2 = payload.imageFileName2;
-  if (payload.imageFileName3) backendPayload.ImageFileName3 = payload.imageFileName3;
-  if (payload.imageFileName4) backendPayload.ImageFileName4 = payload.imageFileName4;
-  if (payload.imageFileName5) backendPayload.ImageFileName5 = payload.imageFileName5;
-  if (payload.imageFileName6) backendPayload.ImageFileName6 = payload.imageFileName6;
+  // Add images
+  images.forEach((image) => {
+    formData.append('images', image);
+  });
 
-  const response = await apiClient.post<{ success: boolean; data: any }>('/jobs/report', backendPayload);
+  const response = await apiClient.post<{ success: boolean; data: any }>('/jobs/report', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
   return {
     message: response.data.message,
     successStatus: response.data.successStatus,
