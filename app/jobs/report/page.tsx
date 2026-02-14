@@ -6,7 +6,22 @@ import { useSessionStore } from '@/store/session.store';
 import { getEquipment, getProcessFunctions, getWorkOrderTypes, reportJob } from '@/lib/api';
 import type { Equipment, ProcessFunction, WorkOrderType, ReportJobPayload } from '@/types/report-job';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Check, ChevronsUpDown } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
 
 export default function ReportJobPage() {
   const router = useRouter();
@@ -32,6 +47,12 @@ export default function ReportJobPage() {
     reportDate: new Date().toISOString().slice(0, 16), // YYYY-MM-DDTHH:mm format for datetime-local
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Combobox open states
+  const [equipmentOpen, setEquipmentOpen] = useState(false);
+  const [processFunctionOpen, setProcessFunctionOpen] = useState(false);
+  const [workOrderTypeOpen, setWorkOrderTypeOpen] = useState(false);
+
 
   // Load reference data on mount
   useEffect(() => {
@@ -198,65 +219,152 @@ export default function ReportJobPage() {
               
               {/* Equipment Dropdown */}
               <div>
-                <label htmlFor="equipmentId" className={labelStyle}>
+                <label className={labelStyle}>
                   Equipment <span className="text-destructive">*</span>
                 </label>
-                <select
-                  id="equipmentId"
-                  value={formData.equipmentId}
-                  onChange={(e) => setFormData({ ...formData, equipmentId: e.target.value })}
-                  className={glassInput}
-                  required
-                >
-                  <option value="">Select Equipment</option>
-                  {equipment.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.description} ({item.id})
-                    </option>
-                  ))}
-                </select>
+                <Popover open={equipmentOpen} onOpenChange={setEquipmentOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={equipmentOpen}
+                      className={cn(glassInput, "justify-between font-normal")}
+                    >
+                      {formData.equipmentId
+                        ? equipment.find((item) => item.id === formData.equipmentId)?.description + ` (${formData.equipmentId})`
+                        : "Select Equipment..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[400px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search equipment..." />
+                      <CommandList>
+                        <CommandEmpty>No equipment found.</CommandEmpty>
+                        <CommandGroup>
+                          {equipment.map((item) => (
+                            <CommandItem
+                              key={item.id}
+                              value={`${item.description} ${item.id}`}
+                              onSelect={() => {
+                                setFormData({ ...formData, equipmentId: item.id });
+                                setEquipmentOpen(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  formData.equipmentId === item.id ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {item.description} ({item.id})
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               {/* Process Function Dropdown */}
               <div>
-                <label htmlFor="processFunctionId" className={labelStyle}>
+                <label className={labelStyle}>
                   Process Function <span className="text-destructive">*</span>
                 </label>
-                <select
-                  id="processFunctionId"
-                  value={formData.processFunctionId}
-                  onChange={(e) => setFormData({ ...formData, processFunctionId: e.target.value })}
-                  className={glassInput}
-                  required
-                >
-                  <option value="">Select Process Function</option>
-                  {processFunctions.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.description} ({item.id})
-                    </option>
-                  ))}
-                </select>
+                <Popover open={processFunctionOpen} onOpenChange={setProcessFunctionOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={processFunctionOpen}
+                      className={cn(glassInput, "justify-between font-normal")}
+                    >
+                      {formData.processFunctionId
+                        ? processFunctions.find((item) => item.id === formData.processFunctionId)?.description + ` (${formData.processFunctionId})`
+                        : "Select Process Function..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[400px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search process function..." />
+                      <CommandList>
+                        <CommandEmpty>No process function found.</CommandEmpty>
+                        <CommandGroup>
+                          {processFunctions.map((item) => (
+                            <CommandItem
+                              key={item.id}
+                              value={`${item.description} ${item.id}`}
+                              onSelect={() => {
+                                setFormData({ ...formData, processFunctionId: item.id });
+                                setProcessFunctionOpen(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  formData.processFunctionId === item.id ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {item.description} ({item.id})
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               {/* Work Order Type Dropdown */}
               <div>
-                <label htmlFor="workOrderTypeId" className={labelStyle}>
+                <label className={labelStyle}>
                   Work Order Type <span className="text-destructive">*</span>
                 </label>
-                <select
-                  id="workOrderTypeId"
-                  value={formData.workOrderTypeId}
-                  onChange={(e) => setFormData({ ...formData, workOrderTypeId: e.target.value })}
-                  className={glassInput}
-                  required
-                >
-                  <option value="">Select Work Order Type</option>
-                  {workOrderTypes.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.description} ({item.id})
-                    </option>
-                  ))}
-                </select>
+                <Popover open={workOrderTypeOpen} onOpenChange={setWorkOrderTypeOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={workOrderTypeOpen}
+                      className={cn(glassInput, "justify-between font-normal")}
+                    >
+                      {formData.workOrderTypeId
+                        ? workOrderTypes.find((item) => item.id === formData.workOrderTypeId)?.description + ` (${formData.workOrderTypeId})`
+                        : "Select Work Order Type..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[400px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search work order type..." />
+                      <CommandList>
+                        <CommandEmpty>No work order type found.</CommandEmpty>
+                        <CommandGroup>
+                          {workOrderTypes.map((item) => (
+                            <CommandItem
+                              key={item.id}
+                              value={`${item.description} ${item.id}`}
+                              onSelect={() => {
+                                setFormData({ ...formData, workOrderTypeId: item.id });
+                                setWorkOrderTypeOpen(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  formData.workOrderTypeId === item.id ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {item.description} ({item.id})
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
 
