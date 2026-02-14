@@ -51,9 +51,20 @@ export class ApiClient {
       const response = await fetch(url, config);
 
       if (!response.ok) {
-        // Handle 401 specifically? 
-        if (response.status === 401) {
-          // Optional: trigger logout event
+        // Handle 401/403 specifically - Auto Redirect
+        if (response.status === 401 || response.status === 403) {
+          if (typeof window !== 'undefined') {
+            // Check if we're already on a login page to avoid loops
+            const path = window.location.pathname;
+            if (!path.includes('/login') && !path.includes('/admin/login')) {
+              // Clear session from storage
+              localStorage.removeItem('technician-session');
+
+              // Force redirect to login
+              window.location.href = '/login';
+              return {} as T; // Return empty to stop processing
+            }
+          }
         }
 
         // Try to parse error message from JSON

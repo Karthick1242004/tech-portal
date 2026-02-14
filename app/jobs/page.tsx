@@ -75,19 +75,14 @@ export default function JobsPage() {
       } catch (error: any) {
         console.error('Failed to load jobs:', error);
         
-        // Handle Authentication Error specifically
-        if (error.status === 401 || error.code === 'AUTH_FAILED' || error.message?.includes('Authentication failed')) {
+        // Auth errors are now handled centrally in api.ts with auto-redirect
+        // Only show toast for other errors if needed, or let the generic error state handle it
+        if (error.status !== 401 && error.status !== 403) {
            toast({
-             variant: "destructive",
+             variant: "destructive", 
+             title: "Error loading jobs",
+             description: error.message || "Please try again later",
              className: "text-white",
-             title: "Authentication failed",
-             description: "Please Login again",
-             duration: 5000,
-             action: (
-               <ToastAction altText="Login" onClick={() => router.push('/login')} className="bg-white text-destructive hover:bg-white/90">
-                 Login
-               </ToastAction>
-             ),
            });
         }
         

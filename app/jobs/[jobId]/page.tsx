@@ -60,23 +60,12 @@ export default function JobDetailPage() {
       } catch (err: any) {
         console.error('[v0] Failed to load job:', err);
         
-        // Handle Authentication Error specifically
-        if (err.status === 401 || err.code === 'AUTH_FAILED' || err.message?.includes('Authentication failed')) {
-           toast({
-             variant: "destructive",
-             className: "text-white",
-             title: "Authentication failed",
-             description: "Please Login again",
-             duration: 5000,
-             action: (
-               <ToastAction altText="Login" onClick={() => router.push('/login')} className="bg-white text-destructive hover:bg-white/90">
-                 Login
-               </ToastAction>
-             ),
-           });
-           setError('Authentication failed');
-        } else {
+        // Auth errors are now handled centrally in api.ts with auto-redirect
+        if (err.status !== 401 && err.status !== 403) {
            setError('Failed to load job details');
+        } else {
+           // For auth errors, api.ts redirects, but we verify state here to avoid flash content
+           setError('Authentication failed');
         }
       } finally {
         setIsLoading(false);
