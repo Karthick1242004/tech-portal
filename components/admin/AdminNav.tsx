@@ -21,7 +21,7 @@ const adminLinks = [
   {
     href: '/admin/users',
     label: 'User Management',
-    icon: 'Users', // Will need to import Users icon
+    icon: Users,
     description: 'Manage admin accounts and access',
   },
 ];
