@@ -325,3 +325,21 @@ export async function reportJob(payload: ReportJobPayload, images: File[] = []):
   };
 }
 
+
+// Vendor API
+export interface Vendor {
+  Id: string;
+  Context?: number;
+  Description: string;
+  Status?: number;
+}
+
+export async function getVendors(): Promise<Vendor[]> {
+  const response = await apiClient.get<{ items: Vendor[] }>('/vendors');
+  return response.items.map((vendor) => ({
+    Id: vendor.Id,
+    Context: vendor.Context,
+    Description: vendor.Description,
+    Status: vendor.Status,
+  }));
+}
