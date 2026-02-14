@@ -5,6 +5,13 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Clock, Phone, User, AlertTriangle, Loader2, Hash, Settings, Calendar, X, ImageIcon, Languages } from 'lucide-react';
 import { format } from 'date-fns';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import type { Job } from '@/lib/mock-jobs';
 
 interface JobInfoProps {
@@ -106,16 +113,28 @@ export function JobInfo({ job, translatedDescription, translatedInstruction, isT
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Description</h3>
               {currentLanguage && onLanguageChange && (
-                <select
+                <Select
                   value={currentLanguage}
-                  onChange={(e) => onLanguageChange(e.target.value)}
+                  onValueChange={onLanguageChange}
                   disabled={isTranslating}
-                  className="text-xs border rounded px-2 py-1 bg-background"
                 >
-                  <option value="en">English</option>
-                  <option value="ta">Tamil</option>
-                  <option value="hi">Hindi</option>
-                </select>
+                  <SelectTrigger className="h-6 text-xs px-2 border rounded bg-background min-w-[90px]">
+                    <SelectValue placeholder="Language" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="en">English</SelectItem>
+                    <SelectItem value="pl">Polish (Polski)</SelectItem>
+                    <SelectItem value="pa">Punjabi (ਪੰਜਾਬੀ)</SelectItem>
+                    <SelectItem value="ur">Urdu (اردو)</SelectItem>
+                    <SelectItem value="bn">Bengali (বাংলা)</SelectItem>
+                    <SelectItem value="gu">Gujarati (ગુજરાતી)</SelectItem>
+                    <SelectItem value="ar">Arabic (العربية)</SelectItem>
+                    <SelectItem value="fr">French (Français)</SelectItem>
+                    <SelectItem value="es">Spanish (Español)</SelectItem>
+                    <SelectItem value="pt">Portuguese (Português)</SelectItem>
+                    <SelectItem value="cy">Welsh (Cymraeg)</SelectItem>
+                  </SelectContent>
+                </Select>
               )}
             </div>
             {isTranslating ? (
