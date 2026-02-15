@@ -372,12 +372,13 @@ export async function generateVendorQR(vendorId: string): Promise<{ token: strin
   }
 }
 
-export async function loginWithQr(token: string): Promise<{ accessToken: string; vendorId: string; plantId: string; user: { role: 'technician' | 'admin' } }> {
+export async function loginWithQr(token: string): Promise<{ accessToken: string; vendorId: string; vendorName?: string; plantId: string; user: { role: 'technician' | 'admin' } }> {
   const response = await apiClient.post<{
     success: boolean;
     data: {
       accessToken: string;
       vendorId: string;
+      vendorName?: string;
       plantId: string;
       user: { role: 'technician' | 'admin' };
     }

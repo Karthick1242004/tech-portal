@@ -18,7 +18,7 @@ import { ToastAction } from '@/components/ui/toast';
 export default function JobsPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { isAuthenticated, isTestMode, vendorId } = useSessionStore();
+  const { isAuthenticated, isTestMode, vendorId, vendorName } = useSessionStore();
   const [allJobs, setAllJobs] = useState<Job[]>([]);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -155,7 +155,7 @@ export default function JobsPage() {
               <div className="space-y-1">
                 <h1 className="text-2xl font-bold tracking-tight">Active Jobs</h1>
                 <p className="text-sm text-muted-foreground">
-                  Vendor: {vendorId || 'ACME Industrial Services'}
+                  Vendor: {vendorName || vendorId || 'ACME Industrial Services'}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   Sorted by: Planned Start → Priority

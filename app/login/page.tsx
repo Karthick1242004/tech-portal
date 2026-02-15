@@ -38,6 +38,7 @@ export default function LoginPage() {
       setSession({
         accessToken: authData.accessToken,
         vendorId: authData.vendorId,
+        vendorName: authData.vendorName,
         plantId: authData.plantId,
         userRole: authData.user.role || 'technician'
       });

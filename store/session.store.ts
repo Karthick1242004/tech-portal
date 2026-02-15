@@ -4,6 +4,7 @@ import { persist } from 'zustand/middleware';
 interface SessionState {
   accessToken: string | null;
   vendorId: string | null;
+  vendorName: string | null;
   plantId: string | null;
   isAuthenticated: boolean;
   isTestMode: boolean;
@@ -11,6 +12,7 @@ interface SessionState {
   setSession: (data: {
     accessToken: string;
     vendorId: string;
+    vendorName?: string;
     plantId: string;
     userRole?: 'technician' | 'admin';
   }) => void;
@@ -24,6 +26,7 @@ export const useSessionStore = create<SessionState>()(
     (set) => ({
       accessToken: null,
       vendorId: null,
+      vendorName: null,
       plantId: null,
       isAuthenticated: false,
       isTestMode: false,
@@ -32,6 +35,7 @@ export const useSessionStore = create<SessionState>()(
         set({
           accessToken: data.accessToken,
           vendorId: data.vendorId,
+          vendorName: data.vendorName || data.vendorId,
           plantId: data.plantId,
           userRole: data.userRole || 'technician',
           isAuthenticated: true,
@@ -40,6 +44,7 @@ export const useSessionStore = create<SessionState>()(
         set({
           accessToken: null,
           vendorId: null,
+          vendorName: null,
           plantId: null,
           isAuthenticated: false,
           userRole: 'technician',
@@ -50,6 +55,7 @@ export const useSessionStore = create<SessionState>()(
           isAuthenticated: enabled,
           userRole: role,
           vendorId: enabled ? 'ACME Industrial Services' : null,
+          vendorName: enabled ? 'ACME Industrial Services' : null,
           plantId: enabled ? 'Plant-01' : null,
         }),
       setUserRole: (role) => set({ userRole: role }),
