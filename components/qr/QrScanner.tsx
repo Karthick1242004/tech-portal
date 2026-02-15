@@ -35,7 +35,6 @@ export function QrScanner({ className, onScan, onError }: QrScannerProps) {
               onScan={handleScan}
               onError={(err) => onError?.(err)}
               components={{
-                  audio: false,
                   finder: false, // We use our own custom UI
               }}
               styles={{
