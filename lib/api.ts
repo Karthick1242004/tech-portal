@@ -354,3 +354,26 @@ export async function getVendors(): Promise<Vendor[]> {
     Status: vendor.Status,
   }));
 }
+// Auth API
+export async function generateVendorQR(vendorId: string): Promise<{ token: string; expiresIn: number }> {
+  try {
+    const response = await apiClient.post<{ success: boolean; data: { token: string; expiresIn: number } }>('/auth/generate-qr', { vendorId });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to generate QR token:', error);
+    throw error;
+  }
+}
+
+export async function loginWithQr(token: string): Promise<{ accessToken: string; vendorId: string; plantId: string; user: { role: 'technician' | 'admin' } }> {
+  const response = await apiClient.post<{
+    success: boolean;
+    data: {
+      accessToken: string;
+      vendorId: string;
+      plantId: string;
+      user: { role: 'technician' | 'admin' };
+    }
+  }>('/auth/qr-login', { token });
+  return response.data;
+}

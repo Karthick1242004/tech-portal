@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { QrScanner } from '@/components/qr/QrScanner';
 import { useSessionStore } from '@/store/session.store';
-import { apiClient } from '@/lib/api';
+import { apiClient, loginWithQr } from '@/lib/api';
 import { Loader2, Shield, AlertCircle, ScanLine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -31,18 +31,8 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      // Call Real Backend API
-      const response = await apiClient.post<{
-        success: boolean;
-        data: {
-          accessToken: string;
-          vendorId: string;
-          plantId: string;
-          user: { role: 'technician' | 'admin' };
-        }
-      }>('/auth/qr-login', { token });
-
-      const authData = response.data;
+      // Use centralized API function
+      const authData = await loginWithQr(token);
 
       // Store session in Zustand
       setSession({
@@ -79,11 +69,19 @@ export default function LoginPage() {
           </div>
 
           {/* QR Scanner */}
-          <div className="py-4 relative group cursor-pointer" onClick={handleSimulateScan} title="Click to simulate scan">
-            <QrScanner />
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/10 rounded-2xl">
-                 <span className="bg-white dark:bg-slate-800 dark:text-slate-200 px-3 py-1 rounded shadow text-sm font-medium">Click to Simulate Scan</span>
-            </div>
+          <div className="py-4 relative group">
+            <QrScanner 
+                onScan={(token) => handleQrLogin(token)}
+                onError={(err) => console.error(err)}
+            />
+            {/* Dev Helper - Keep simulated scan for easier testing without camera */}
+             <div 
+                className="absolute top-2 right-2 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 p-1 rounded-full z-20"
+                onClick={handleSimulateScan}
+                title="Simulate Scan (Dev)"
+             >
+                 <ScanLine className="w-4 h-4 text-muted-foreground" />
+             </div>
           </div>
 
           {/* Instruction */}

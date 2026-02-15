@@ -19,7 +19,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { QRCodeSVG } from 'qrcode.react';
 import { RefreshCw, Printer, Loader2, Check, ChevronsUpDown } from 'lucide-react';
-import { getVendors, type Vendor } from '@/lib/api';
+import { getVendors, generateVendorQR, type Vendor } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
@@ -54,22 +54,25 @@ export function QrGenerator() {
     loadVendors();
   }, [toast]);
 
-  const generateQrCode = () => {
+  const generateQrCode = async () => {
     if (!selectedVendor) {
       return;
     }
 
-    // Generate a mock JWT-like token
-    const token = btoa(
-      JSON.stringify({
-        vendorId: selectedVendor,
-        timestamp: Date.now(),
-        expiresIn: 1800000, // 30 minutes in ms
-      })
-    );
-
-    setQrToken(token);
-    setShowQr(true);
+    try {
+      // Generate signed JWT token from backend
+      const { token } = await generateVendorQR(selectedVendor);
+      
+      setQrToken(token);
+      setShowQr(true);
+    } catch (error: any) {
+      console.error('Failed to generate QR:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Generation Failed',
+        description: error.message || 'Could not generate QR code',
+      });
+    }
   };
 
   const handleRefresh = () => {
