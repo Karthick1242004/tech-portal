@@ -67,18 +67,25 @@ export class ApiClient {
           }
         }
 
-        // Try to parse error message from JSON
+        // Try to parse error message
         let errorMessage = response.statusText;
         let errorData: any = {};
 
         try {
-          const errorJson = await response.json();
-          errorData = errorJson;
-          errorMessage = errorJson.message || errorJson.error || errorMessage;
-        } catch (e) {
-          // fallback to text
           const text = await response.text();
-          if (text) errorMessage = text;
+          if (text) {
+            try {
+              const errorJson = JSON.parse(text);
+              errorData = errorJson;
+              errorMessage = errorJson.message || errorJson.error || errorMessage;
+            } catch (e) {
+              // Not JSON, use text directly
+              errorMessage = text;
+            }
+          }
+        } catch (e) {
+          // Failed to read text, keep statusText
+          console.error('Failed to read error response', e);
         }
 
         const error: ApiError & { code?: string } = {
