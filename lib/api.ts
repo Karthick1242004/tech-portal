@@ -1,6 +1,7 @@
 interface ApiError {
   message: string;
   status: number;
+  code?: string;
 }
 
 export class ApiClient {
@@ -58,9 +59,12 @@ export class ApiClient {
 
         // Try to parse error message from JSON
         let errorMessage = response.statusText;
+        let errorCode: string | undefined;
+
         try {
           const errorJson = await response.json();
           errorMessage = errorJson.message || errorJson.error || errorMessage;
+          errorCode = errorJson.code;
         } catch (e) {
           // fallback to text
           const text = await response.text();
@@ -70,6 +74,7 @@ export class ApiClient {
         const error: ApiError = {
           message: errorMessage,
           status: response.status,
+          code: errorCode,
         };
         throw error;
       }
@@ -142,9 +147,12 @@ export class ApiClient {
 
       if (!response.ok) {
         let errorMessage = response.statusText;
+        let errorCode: string | undefined;
+
         try {
           const errorJson = await response.json();
           errorMessage = errorJson.message || errorJson.error || errorMessage;
+          errorCode = errorJson.code;
         } catch (e) {
           const text = await response.text();
           if (text) errorMessage = text;
@@ -153,6 +161,7 @@ export class ApiClient {
         throw {
           message: errorMessage,
           status: response.status,
+          code: errorCode,
         };
       }
 
@@ -231,6 +240,18 @@ export async function getAdminUsers(): Promise<AdminUser[]> {
   return response.data;
 }
 
+export async function validateSession(): Promise<{ valid: boolean; vendorId: string; userId: string }> {
+  const response = await apiClient.post<{
+    success: boolean;
+    data: {
+      valid: boolean;
+      vendorId: string;
+      userId: string;
+    }
+  }>('/auth/validate-session');
+  return response.data;
+}
+
 export async function createAdminUser(userData: { name: string; email: string; password: string }): Promise<AdminUser> {
   const response = await apiClient.post<{ success: boolean; data: AdminUser }>('/admin/users', userData);
   return response.data;
@@ -242,4 +263,24 @@ export async function resetAdminPassword(userId: string, newPassword: string): P
 
 export async function deleteAdminUser(userId: string): Promise<void> {
   await apiClient.delete(`/admin/users/${userId}`);
+}
+
+export async function loginWithQr(token: string): Promise<{
+  accessToken: string;
+  vendorId: string;
+  vendorName: string;
+  plantId: string;
+  user: { role: 'technician' | 'admin' };
+}> {
+  const response = await apiClient.post<{
+    success: boolean;
+    data: {
+      accessToken: string;
+      vendorId: string;
+      vendorName: string;
+      plantId: string;
+      user: { role: 'technician' | 'admin' };
+    }
+  }>('/auth/qr-login', { token });
+  return response.data;
 }

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { notFound } from 'next/navigation';
 import { useSessionStore } from '@/store/session.store';
+import { useSessionValidator } from '@/hooks/useSessionValidator';
 import { useTranslationStore } from '@/store/translation.store';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -12,7 +13,9 @@ import { getJobById } from '@/lib/api';
 import { JobInfo } from '@/components/jobs/JobInfo';
 import { JobImages } from '@/components/jobs/JobImages';
 import { JobFeedback } from '@/components/jobs/JobFeedback';
+import { JobSkeleton } from '@/components/jobs/JobSkeleton';
 import { JobInfoSkeleton } from '@/components/jobs/JobInfoSkeleton';
+import { SessionEndedCard } from '@/components/system/SessionEndedCard';
 import { JobImagesSkeleton } from '@/components/jobs/JobImagesSkeleton';
 import { JobFeedbackSkeleton } from '@/components/jobs/JobFeedbackSkeleton';
 import { LanguageSelector } from '@/components/jobs/LanguageSelector';
@@ -21,9 +24,12 @@ import type { Job } from '@/lib/mock-jobs';
 export default function JobDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const { isAuthenticated, isTestMode } = useSessionStore();
+  const { isAuthenticated, isTestMode, isInvalidated } = useSessionStore();
   const { currentLanguage, setLanguage, getTranslation, setTranslation } = useTranslationStore();
   const jobId = params.jobId as string;
+  
+  // Poll session validity
+  useSessionValidator();
 
   const [job, setJob] = useState<Job | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -65,6 +71,22 @@ export default function JobDetailPage() {
 
     fetchJob();
   }, [jobId]);
+
+  // If session was invalidated, show SessionEndedCard
+  if (isInvalidated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <SessionEndedCard />
+      </div>
+    );
+  }
+
+  if (error) {
+    // If there's an error and it's not loading, we can show a specific error message or redirect
+    // For now, we'll let the main render block handle the error display.
+    // This `if (error)` block is here to match the instruction's structure,
+    // but its content is adjusted to maintain syntactic correctness.
+  }
 
   const handleLanguageChange = async (language: string) => {
     if (!job) return;

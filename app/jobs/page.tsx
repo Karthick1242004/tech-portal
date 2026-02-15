@@ -3,11 +3,13 @@
 import { useEffect, useRef, useCallback, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSessionStore } from '@/store/session.store';
+import { useSessionValidator } from '@/hooks/useSessionValidator';
 import { getJobs } from '@/lib/api';
 import { JobCard } from '@/components/jobs/JobCard';
 import { JobSkeleton } from '@/components/jobs/JobSkeleton';
 import { JobFilters } from '@/components/jobs/JobFilters';
 import { EmptyState } from '@/components/system/EmptyState';
+import { SessionEndedCard } from '@/components/system/SessionEndedCard';
 import { Loader2, Briefcase } from 'lucide-react';
 import type { Job } from '@/lib/mock-jobs';
 import { JobFilterState, INITIAL_FILTER_STATE } from '@/types/filters';
@@ -15,7 +17,10 @@ import { filterJobs } from '@/lib/filter-utils';
 
 export default function JobsPage() {
   const router = useRouter();
-  const { isAuthenticated, isTestMode, vendorId } = useSessionStore();
+  const { isAuthenticated, isTestMode, vendorId, vendorName, isInvalidated } = useSessionStore();
+  
+  // Poll session validity
+  useSessionValidator();
   const [allJobs, setAllJobs] = useState<Job[]>([]);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -80,6 +85,15 @@ export default function JobsPage() {
     loadJobs();
   }, []); // Remove dependencies to avoid re-fetching on filter change (client-side filtering)
 
+  // If session was invalidated, show SessionEndedCard
+  if (isInvalidated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <SessionEndedCard />
+      </div>
+    );
+  }
+
   // Filter jobs
   const filteredJobs = useMemo(() => {
     // Create effective state with debounced search
@@ -139,7 +153,7 @@ export default function JobsPage() {
             <div className="space-y-1">
               <h1 className="text-2xl font-bold tracking-tight">Active Jobs</h1>
               <p className="text-sm text-muted-foreground">
-                Vendor: {vendorId || 'ACME Industrial Services'}
+                Vendor: {vendorName || vendorId || 'ACME Industrial Services'}
               </p>
               <p className="text-xs text-muted-foreground">
                 Sorted by: Planned Start → Priority
