@@ -54,7 +54,20 @@ export default function LoginPage() {
 
   const handleScan = (qrData: string) => {
     if (!isLoading) {
-      handleQrLogin(qrData);
+      // Support both raw token and deep-link URL formats
+      let token = qrData;
+      try {
+        const url = new URL(qrData);
+        const urlToken = url.searchParams.get('token');
+        if (urlToken) {
+          token = urlToken;
+        }
+      } catch (e) {
+        // Not a valid URL, treat as raw token (backward compatibility)
+        // No action needed, token is already set to qrData
+      }
+      
+      handleQrLogin(token);
     }
   };
 

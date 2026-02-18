@@ -63,7 +63,11 @@ export function QrGenerator() {
       // Generate signed JWT token from backend
       const { token } = await generateVendorQR(selectedVendor);
       
-      setQrToken(token);
+      // Create deep link for QR code
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://vone-tech-portal.vercel.app';
+      const deepLink = `${appUrl}/login?token=${token}`;
+      
+      setQrToken(deepLink);
       setShowQr(true);
     } catch (error: any) {
       console.error('Failed to generate QR:', error);
