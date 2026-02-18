@@ -23,7 +23,7 @@ export function AppHeader() {
 
   return (
     <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+      <div className="w-full max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-3">
           <Image 
             src="/vone_logo.png" 
