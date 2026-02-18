@@ -1,6 +1,7 @@
 interface ApiError {
   message: string;
   status: number;
+  code?: string;
 }
 
 export class ApiClient {
@@ -164,9 +165,12 @@ export class ApiClient {
 
       if (!response.ok) {
         let errorMessage = response.statusText;
+        let errorCode: string | undefined;
+
         try {
           const errorJson = await response.json();
           errorMessage = errorJson.message || errorJson.error || errorMessage;
+          errorCode = errorJson.code;
         } catch (e) {
           const text = await response.text();
           if (text) errorMessage = text;
@@ -175,6 +179,7 @@ export class ApiClient {
         throw {
           message: errorMessage,
           status: response.status,
+          code: errorCode,
         };
       }
 
@@ -250,6 +255,18 @@ export interface AdminUser {
 
 export async function getAdminUsers(): Promise<AdminUser[]> {
   const response = await apiClient.get<{ success: boolean; data: AdminUser[] }>('/admin/users');
+  return response.data;
+}
+
+export async function validateSession(): Promise<{ valid: boolean; vendorId: string; userId: string }> {
+  const response = await apiClient.post<{
+    success: boolean;
+    data: {
+      valid: boolean;
+      vendorId: string;
+      userId: string;
+    }
+  }>('/auth/validate-session');
   return response.data;
 }
 

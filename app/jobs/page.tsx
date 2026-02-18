@@ -3,11 +3,13 @@
 import { useEffect, useRef, useCallback, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSessionStore } from '@/store/session.store';
+import { useSessionValidator } from '@/hooks/useSessionValidator';
 import { getJobs } from '@/lib/api';
 import { JobCard } from '@/components/jobs/JobCard';
 import { JobSkeleton } from '@/components/jobs/JobSkeleton';
 import { JobFilters } from '@/components/jobs/JobFilters';
 import { EmptyState } from '@/components/system/EmptyState';
+import { SessionEndedCard } from '@/components/system/SessionEndedCard';
 import { Loader2, Briefcase } from 'lucide-react';
 import type { Job } from '@/lib/mock-jobs';
 import { JobFilterState, INITIAL_FILTER_STATE } from '@/types/filters';
@@ -18,7 +20,10 @@ import { ToastAction } from '@/components/ui/toast';
 export default function JobsPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { isAuthenticated, isTestMode, vendorId, vendorName } = useSessionStore();
+  const { isAuthenticated, isTestMode, vendorId, vendorName, isInvalidated } = useSessionStore();
+  
+  // Poll session validity
+  useSessionValidator();
   const [allJobs, setAllJobs] = useState<Job[]>([]);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -94,6 +99,15 @@ export default function JobsPage() {
 
     loadJobs();
   }, []); // Remove dependencies to avoid re-fetching on filter change (client-side filtering)
+
+  // If session was invalidated, show SessionEndedCard
+  if (isInvalidated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <SessionEndedCard />
+      </div>
+    );
+  }
 
   // Filter jobs
   const filteredJobs = useMemo(() => {

@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { setSession, setTestMode, isTestMode } = useSessionStore();
+  const { setSession } = useSessionStore();
   
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,15 +46,16 @@ export default function LoginPage() {
       // Redirect to jobs page
       router.push('/jobs');
     } catch (err: any) {
-      console.error('[Header] Login failed:', err);
+      console.error('[Login] QR login failed:', err);
       setError(err.message || 'Invalid QR code. Please try scanning again.');
       setIsLoading(false);
     }
   };
 
-  const handleSimulateScan = () => {
-      // Simulate scanning a valid QR code: VENDOR:PLANT:USER
-      handleQrLogin("ACME:Plant1:Tech001");
+  const handleScan = (qrData: string) => {
+    if (!isLoading) {
+      handleQrLogin(qrData);
+    }
   };
 
   return (
@@ -65,24 +66,13 @@ export default function LoginPage() {
           <div className="text-center space-y-2">
             <h1 className="text-3xl font-bold tracking-tight">QR Login</h1>
             <p className="text-muted-foreground">
-              Scan your QR code at reception
+              Scan your QR code to access the portal
             </p>
           </div>
 
           {/* QR Scanner */}
-          <div className="py-4 relative group">
-            <QrScanner 
-                onScan={(token) => handleQrLogin(token)}
-                onError={(err) => console.error(err)}
-            />
-            {/* Dev Helper - Keep simulated scan for easier testing without camera */}
-             <div 
-                className="absolute top-2 right-2 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 p-1 rounded-full z-20"
-                onClick={handleSimulateScan}
-                title="Simulate Scan (Dev)"
-             >
-                 <ScanLine className="w-4 h-4 text-muted-foreground" />
-             </div>
+          <div className="py-4">
+            <QrScanner onScan={handleScan} />
           </div>
 
           {/* Instruction */}
@@ -102,23 +92,14 @@ export default function LoginPage() {
             {/* Error State */}
             {error && (
               <Alert variant="destructive" className="mt-4">
-                <AlertCircle className="h-4 w-4" />
+                <AlertCircle className="h-4 h-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
           </div>
 
-          {/* Dev Tools */}
-          <div className="space-y-2 pt-4 border-t">
-            <Button
-                onClick={handleSimulateScan}
-                className="w-full bg-blue-600 hover:bg-blue-700"
-            >
-                <ScanLine className="w-4 h-4 mr-2" />
-                Simulate Scan (Dev)
-            </Button>
-            
-            {/* Optional: Keep test mode for fallback if needed, but 'Simulate Scan' is better */}
+          {/* Admin Access */}
+          <div className="pt-4 border-t">
             <Button
               onClick={() => {
                 router.push('/admin/login');
@@ -127,7 +108,7 @@ export default function LoginPage() {
               className="w-full text-muted-foreground hover:text-foreground"
             >
               <Shield className="w-4 h-4 mr-2" />
-              Admin Access (Login)
+              Admin Access
             </Button>
           </div>
 

@@ -1,10 +1,13 @@
+'use client';
+
+
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 
 interface QrScannerProps {
+  onScan: (result: string) => void;
   className?: string;
-  onScan?: (result: string) => void;
   onError?: (error: unknown) => void;
 }
 

@@ -8,6 +8,7 @@ interface SessionState {
   plantId: string | null;
   isAuthenticated: boolean;
   isTestMode: boolean;
+  isInvalidated: boolean;
   userRole: 'technician' | 'admin';
   setSession: (data: {
     accessToken: string;
@@ -19,6 +20,7 @@ interface SessionState {
   clearSession: () => void;
   setTestMode: (enabled: boolean, role?: 'technician' | 'admin') => void;
   setUserRole: (role: 'technician' | 'admin') => void;
+  setInvalidated: (val: boolean) => void;
 }
 
 export const useSessionStore = create<SessionState>()(
@@ -30,6 +32,7 @@ export const useSessionStore = create<SessionState>()(
       plantId: null,
       isAuthenticated: false,
       isTestMode: false,
+      isInvalidated: false,
       userRole: 'technician',
       setSession: (data) =>
         set({
@@ -39,6 +42,7 @@ export const useSessionStore = create<SessionState>()(
           plantId: data.plantId,
           userRole: data.userRole || 'technician',
           isAuthenticated: true,
+          isInvalidated: false,
         }),
       clearSession: () =>
         set({
@@ -57,8 +61,10 @@ export const useSessionStore = create<SessionState>()(
           vendorId: enabled ? 'ACME Industrial Services' : null,
           vendorName: enabled ? 'ACME Industrial Services' : null,
           plantId: enabled ? 'Plant-01' : null,
+          isInvalidated: false,
         }),
       setUserRole: (role) => set({ userRole: role }),
+      setInvalidated: (val) => set({ isInvalidated: val }),
     }),
     {
       name: 'technician-session',
