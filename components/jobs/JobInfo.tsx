@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Phone, User, AlertTriangle, Loader2, Hash, Settings, Calendar, X, ImageIcon, Languages } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Clock, Phone, User, AlertTriangle, Loader2, Hash, Settings, Calendar, X, ImageIcon, Languages, PlusCircle, Upload } from 'lucide-react';
 import { format } from 'date-fns';
 import {
   Select,
@@ -23,12 +24,20 @@ interface JobInfoProps {
   onLanguageChange?: (language: string) => void;
 }
 
-import { getEmployeeById } from '@/lib/api';
+import { getEmployeeById, attachImageToJob } from '@/lib/api';
 
 export function JobInfo({ job, translatedDescription, translatedInstruction, isTranslating, currentLanguage, onLanguageChange }: JobInfoProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [employeeName, setEmployeeName] = useState<string | null>(null);
   const [isLoadingEmployee, setIsLoadingEmployee] = useState(false);
+
+  // Image attachment state
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [pendingImages, setPendingImages] = useState<File[]>([]);
+  const [pendingPreviews, setPendingPreviews] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [localImages, setLocalImages] = useState<string[]>(job.images || []);
+  const [uploadErrors, setUploadErrors] = useState<string[]>([]);
 
   useEffect(() => {
     async function fetchEmployeeName() {
@@ -49,6 +58,48 @@ export function JobInfo({ job, translatedDescription, translatedInstruction, isT
     }
     fetchEmployeeName();
   }, [job?.contact?.name]);
+
+  // Handle file selection — build local preview URLs
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    const newPreviews = files.map(f => URL.createObjectURL(f));
+    setPendingImages(prev => [...prev, ...files]);
+    setPendingPreviews(prev => [...prev, ...newPreviews]);
+    // Reset file input so same file can be re-selected if needed
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  // Remove a pending (not yet uploaded) image
+  const removePending = (index: number) => {
+    URL.revokeObjectURL(pendingPreviews[index]); // cleanup memory
+    setPendingImages(prev => prev.filter((_, i) => i !== index));
+    setPendingPreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // Upload all pending images to Cloudinary + EAM
+  const handleUpload = async () => {
+    if (!pendingImages.length || isUploading) return;
+    setIsUploading(true);
+    setUploadErrors([]);
+    const errors: string[] = [];
+    const uploaded: string[] = [];
+    for (const file of pendingImages) {
+      try {
+        const result = await attachImageToJob(job.id, file);
+        uploaded.push(result.cloudinaryUrl);
+      } catch (err: any) {
+        errors.push(`Failed to upload "${file.name}": ${err.message || 'Unknown error'}`);
+      }
+    }
+    // Revoke object URLs
+    pendingPreviews.forEach(url => URL.revokeObjectURL(url));
+    setPendingImages([]);
+    setPendingPreviews([]);
+    if (uploaded.length) setLocalImages(prev => [...prev, ...uploaded]);
+    if (errors.length) setUploadErrors(errors);
+    setIsUploading(false);
+  };
 
   // Helper to format dates safely
   const formatDate = (dateString: string | undefined) => {
@@ -104,7 +155,7 @@ export function JobInfo({ job, translatedDescription, translatedInstruction, isT
           
           <div className="grid grid-cols-2 gap-x-6 gap-y-4 pt-4 border-t">
              {/* Process */}
-            <div className="flex items-start gap-2">
+            <div className={`${job.processFunction.description === "Unknown" ? 'hidden' : ''} flex items-start gap-2`}>
               <Settings className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
               <div className="min-w-0">
                 <p className="text-xs text-muted-foreground uppercase tracking-wide">Process Function</p>
@@ -112,7 +163,7 @@ export function JobInfo({ job, translatedDescription, translatedInstruction, isT
               </div>
             </div>
            
-            <div className="flex items-start gap-2">
+            <div className={`${job.equipment.name === "Unknown" ? 'hidden' : ''} flex items-start gap-2`}>
               <Settings className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
               <div className="min-w-0">
                 <p className="text-xs text-muted-foreground uppercase tracking-wide">Equipment</p>
@@ -121,7 +172,7 @@ export function JobInfo({ job, translatedDescription, translatedInstruction, isT
             </div>
 
             {/* Vendor */}
-            <div className="flex items-start gap-2">
+            <div className={`${job.vendor === "Unknown" ? 'hidden' : ''} flex items-start gap-2`}>
               <User className="w-4 h-4 text-orange-600 dark:text-orange-400 flex-shrink-0 mt-0.5" />
               <div className="min-w-0">
                 <p className="text-xs text-muted-foreground uppercase tracking-wide">Vendor</p>
@@ -130,7 +181,7 @@ export function JobInfo({ job, translatedDescription, translatedInstruction, isT
             </div>
 
             {/* Order Type */}
-            <div className="flex items-start gap-2">
+            <div className={`${job.workOrderType === "Unknown" ? 'hidden' : ''} flex items-start gap-2`}>
               <Settings className="w-4 h-4 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-0.5" />
               <div className="min-w-0">
                 <p className="text-xs text-muted-foreground uppercase tracking-wide">Job Type</p>
@@ -253,24 +304,53 @@ export function JobInfo({ job, translatedDescription, translatedInstruction, isT
           </div>
         </Card>
 
-        {/* Container 4: Equipment Images */}
+        {/* Container 4: Job Images — view existing + add new */}
         <Card className="p-4">
-          <h3 className="text-xs font-semibold uppercase tracking-wide mb-3 flex items-center gap-2 text-muted-foreground">
-            <ImageIcon className="w-4 h-4" />
-            Job Images
-          </h3>
-          
-          {job.images && job.images.length > 0 ? (
+          {/* Hidden file input */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            onChange={handleFileSelect}
+            aria-label="Select images to attach to job"
+          />
+
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-xs font-semibold uppercase tracking-wide flex items-center gap-2 text-muted-foreground">
+              <ImageIcon className="w-4 h-4" />
+              Job Images
+              {localImages.length > 0 && (
+                <span className="text-muted-foreground font-normal">({localImages.length})</span>
+              )}
+            </h3>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="h-7 text-xs gap-1.5"
+              aria-label="Add images to job"
+            >
+              <PlusCircle className="w-3.5 h-3.5" />
+              Add Images
+            </Button>
+          </div>
+
+          {/* Existing / uploaded images */}
+          {localImages.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {job.images.slice(0, 4).map((image, i) => (
-                <div 
-                  key={i} 
+              {localImages.map((image, i) => (
+                <div
+                  key={i}
                   onClick={() => setSelectedImage(image)}
                   className="group relative aspect-square rounded-lg border border-border overflow-hidden hover:ring-2 hover:ring-primary hover:scale-[1.02] transition-all duration-200 cursor-pointer shadow-sm bg-muted/20"
                 >
                   <img
                     src={image}
-                    alt={`Equipment image ${i + 1}`}
+                    alt={`Job image ${i + 1}`}
                     className="w-full h-full object-cover"
                     loading="lazy"
                   />
@@ -278,10 +358,69 @@ export function JobInfo({ job, translatedDescription, translatedInstruction, isT
                 </div>
               ))}
             </div>
-          ) : (
+          ) : pendingImages.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-6 bg-muted/30 rounded-lg border border-dashed border-border px-4 text-center">
               <ImageIcon className="w-8 h-8 text-muted-foreground/30 mb-2" />
               <p className="text-sm text-muted-foreground">No images available</p>
+              <p className="text-xs text-muted-foreground/60 mt-1">Click "Add Images" to attach a photo to this job</p>
+            </div>
+          ) : null}
+
+          {/* Pending (not yet uploaded) images preview */}
+          {pendingImages.length > 0 && (
+            <div className="mt-3">
+              <p className="text-xs text-amber-500 font-medium mb-2">{pendingImages.length} image(s) ready to upload</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {pendingPreviews.map((preview, i) => (
+                  <div
+                    key={`pending-${i}`}
+                    className="group relative aspect-square rounded-lg border-2 border-amber-400/60 overflow-hidden shadow-sm bg-muted/20"
+                  >
+                    <img
+                      src={preview}
+                      alt={`Pending image ${i + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removePending(i)}
+                      className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 text-white flex items-center justify-center hover:bg-red-600 transition-colors"
+                      aria-label={`Remove pending image ${i + 1}`}
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                    {/* Pending badge */}
+                    <div className="absolute bottom-1 left-1 text-[9px] bg-amber-500 text-white px-1.5 py-0.5 rounded font-semibold">
+                      PENDING
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Upload button */}
+              <Button
+                type="button"
+                onClick={handleUpload}
+                disabled={isUploading}
+                className="mt-3 w-full gap-2"
+                size="sm"
+                aria-label="Upload pending images to job and EAM"
+              >
+                {isUploading ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Uploading to EAM...</>
+                ) : (
+                  <><Upload className="w-4 h-4" /> Upload to EAM ({pendingImages.length})</>
+                )}
+              </Button>
+            </div>
+          )}
+
+          {/* Upload errors */}
+          {uploadErrors.length > 0 && (
+            <div className="mt-2 space-y-1">
+              {uploadErrors.map((err, i) => (
+                <p key={i} className="text-xs text-destructive">{err}</p>
+              ))}
             </div>
           )}
         </Card>

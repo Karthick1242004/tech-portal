@@ -261,6 +261,21 @@ export async function getEmployeeById(employeeId: string): Promise<EmployeeInfo 
     return null;
   }
 }
+
+export interface AttachImageResult {
+  cloudinaryUrl: string;
+  ultimoResult: any;
+}
+
+export async function attachImageToJob(jobId: string, imageFile: File): Promise<AttachImageResult> {
+  const formData = new FormData();
+  formData.append('image', imageFile);
+  const response = await apiClient.postFormData<{ success: boolean; data: AttachImageResult }>(
+    `/jobs/${jobId}/images`,
+    formData
+  );
+  return response.data;
+}
 // Admin User Management API
 export interface AdminUser {
   _id: string;
