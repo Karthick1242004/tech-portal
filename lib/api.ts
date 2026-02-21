@@ -244,6 +244,23 @@ export async function getJobById(jobId: string): Promise<Job | null> {
     throw e;
   }
 }
+
+export interface EmployeeInfo {
+  Id: string;
+  Description: string;
+  Context?: number;
+  Status?: number;
+}
+
+export async function getEmployeeById(employeeId: string): Promise<EmployeeInfo | null> {
+  try {
+    const response = await apiClient.get<{ success: boolean; data: EmployeeInfo }>(`/jobs/employee/${employeeId}`);
+    return response.data;
+  } catch (e) {
+    console.error('Failed to fetch employee details:', e);
+    return null;
+  }
+}
 // Admin User Management API
 export interface AdminUser {
   _id: string;

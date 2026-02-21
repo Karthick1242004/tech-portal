@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Clock, Phone, User, AlertTriangle, Loader2, Hash, Settings, Calendar, X, ImageIcon, Languages } from 'lucide-react';
@@ -23,8 +23,32 @@ interface JobInfoProps {
   onLanguageChange?: (language: string) => void;
 }
 
+import { getEmployeeById } from '@/lib/api';
+
 export function JobInfo({ job, translatedDescription, translatedInstruction, isTranslating, currentLanguage, onLanguageChange }: JobInfoProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [employeeName, setEmployeeName] = useState<string | null>(null);
+  const [isLoadingEmployee, setIsLoadingEmployee] = useState(false);
+
+  useEffect(() => {
+    async function fetchEmployeeName() {
+      if (job?.contact?.name) {
+        // Assume contact.name contains the ID passed from backend
+        const idToCheck = job.contact.name;
+        // Check if it looks like an ID (e.g., numbers / short string instead of full name)
+        // If the ID is the same as the fallback name on backend, it might be purely numeric
+        if (/^\d+$/.test(idToCheck) || idToCheck.length < 10) {
+          setIsLoadingEmployee(true);
+          const emp = await getEmployeeById(idToCheck);
+          if (emp?.Description) {
+            setEmployeeName(emp.Description);
+          }
+          setIsLoadingEmployee(false);
+        }
+      }
+    }
+    fetchEmployeeName();
+  }, [job?.contact?.name]);
 
   // Helper to format dates safely
   const formatDate = (dateString: string | undefined) => {
@@ -210,7 +234,12 @@ export function JobInfo({ job, translatedDescription, translatedInstruction, isT
                   <User className="w-5 h-5 text-muted-foreground" />
                </div>
                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-bold truncate">{job.contact.name}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-bold truncate">
+                      {employeeName || job.contact.name}
+                    </p>
+                    {isLoadingEmployee && <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />}
+                  </div>
                   {/* <p className="text-xs text-muted-foreground"></p> */}
                </div>
                <a 
