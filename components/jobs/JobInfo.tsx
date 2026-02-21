@@ -68,8 +68,9 @@ export function JobInfo({ job, translatedDescription, translatedInstruction, isT
                 <Hash className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wide">Job ID</p>
+                {/* <p className="text-xs text-muted-foreground uppercase tracking-wide">Job ID</p> */}
                 <p className="text-base font-bold">{job.id}</p>
+                <p className="text-base font-bold">{job.description}</p>
               </div>
             </div>
             <Badge variant="outline" className={`${theme.badge} border px-3 py-1 text-xs`}>
@@ -82,8 +83,16 @@ export function JobInfo({ job, translatedDescription, translatedInstruction, isT
             <div className="flex items-start gap-2">
               <Settings className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
               <div className="min-w-0">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide">Process</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Process Function</p>
                 <p className="text-sm font-medium line-clamp-1">{job.processFunction.description}</p>
+              </div>
+            </div>
+           
+            <div className="flex items-start gap-2">
+              <Settings className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+              <div className="min-w-0">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Equipment</p>
+                <p className="text-sm font-medium line-clamp-1">{job.equipment.name}</p>
               </div>
             </div>
 
@@ -97,10 +106,10 @@ export function JobInfo({ job, translatedDescription, translatedInstruction, isT
             </div>
 
             {/* Order Type */}
-            <div className="flex items-start gap-2 col-span-2">
+            <div className="flex items-start gap-2">
               <Settings className="w-4 h-4 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-0.5" />
               <div className="min-w-0">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide">Order Type</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Job Type</p>
                 <p className="text-sm font-medium line-clamp-1">{job.workOrderType || 'N/A'}</p>
               </div>
             </div>
@@ -111,7 +120,7 @@ export function JobInfo({ job, translatedDescription, translatedInstruction, isT
         <Card className="p-4 space-y-4">
           <div className="space-y-1">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Description</h3>
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Reported Problem</h3>
               {currentLanguage && onLanguageChange && (
                 <Select
                   value={currentLanguage}
@@ -154,7 +163,7 @@ export function JobInfo({ job, translatedDescription, translatedInstruction, isT
           <div className="space-y-2">
             <div className="flex items-center gap-1.5">
               <AlertTriangle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-500" />
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-500">Instructions & Safety</h3>
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-500">Work Instruction</h3>
             </div>
             {isTranslating ? (
               <div className="flex items-center gap-2 py-2">
@@ -202,7 +211,7 @@ export function JobInfo({ job, translatedDescription, translatedInstruction, isT
                </div>
                <div className="min-w-0 flex-1">
                   <p className="text-sm font-bold truncate">{job.contact.name}</p>
-                  <p className="text-xs text-muted-foreground">Supervisor</p>
+                  {/* <p className="text-xs text-muted-foreground"></p> */}
                </div>
                <a 
                  href={`tel:${job.contact.phone}`} 
