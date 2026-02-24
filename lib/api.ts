@@ -379,11 +379,11 @@ export async function reportJob(payload: ReportJobPayload, images: File[] = []):
     formData.append('images', image);
   });
 
-  const response = await apiClient.post<{ success: boolean; data: any }>('/jobs/report', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+  // Use postFormData (NOT post) so the browser automatically sets
+  // Content-Type: multipart/form-data; boundary=<generated>
+  // Using apiClient.post() would JSON.stringify(formData) → {} and force
+  // Content-Type: application/json, causing the "Multipart: Boundary not found" error.
+  const response = await apiClient.postFormData<{ success: boolean; data: any }>('/jobs/report', formData);
 
   return {
     message: response.data.message,
