@@ -11,6 +11,7 @@ export interface Job {
   };
   status: string;
   jobInstruction: string;
+  reportText?: string;
   feedbackText: string;
   priority: 'HIGH' | 'MEDIUM' | 'LOW';
   priorityDescription?: string;

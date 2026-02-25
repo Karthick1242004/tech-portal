@@ -143,7 +143,7 @@ export default function JobDetailPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          q: job.jobInstruction,
+          q: job.reportText || job.jobInstruction,
           source: 'en',
           target: language,
           format: 'text',
@@ -155,7 +155,7 @@ export default function JobDetailPage() {
 
       // Update state and cache
       const descTranslation = descData.translatedText || descData.result || job.description;
-      const instrTranslation = instrData.translatedText || instrData.result || job.jobInstruction;
+      const instrTranslation = instrData.translatedText || instrData.result || (job.reportText || job.jobInstruction);
       
       console.log('[v0] Setting translations:', { descTranslation, instrTranslation });
       

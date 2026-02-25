@@ -226,10 +226,15 @@ export function JobInfo({ job, translatedDescription, translatedInstruction, isT
                 <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">Translating...</span>
               </div>
-            ) : (
+            ) : translatedDescription ? (
               <p className="text-sm text-foreground/90 leading-relaxed font-medium">
-                {translatedDescription || job.description}
+                {translatedDescription}
               </p>
+            ) : (
+              <div 
+                className="text-sm text-foreground/90 leading-relaxed font-medium"
+                dangerouslySetInnerHTML={{ __html: job.description }} 
+              />
             )}
           </div>
           
@@ -248,7 +253,7 @@ export function JobInfo({ job, translatedDescription, translatedInstruction, isT
             ) : (
                <div 
                 className="bg-amber-50/50 dark:bg-amber-950/10 p-3 rounded-md text-sm text-foreground/90 leading-relaxed border border-amber-100 dark:border-amber-900/20"
-                dangerouslySetInnerHTML={{ __html: translatedInstruction || job.jobInstruction }}
+                dangerouslySetInnerHTML={{ __html: translatedInstruction || job.reportText }}
               />
             )}
           </div>

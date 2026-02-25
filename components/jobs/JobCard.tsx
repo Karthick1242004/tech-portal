@@ -58,10 +58,11 @@ export function JobCard({ job, index = 0 }: JobCardProps) {
             </div>
           </div>
 
-          {/* Description */}
-          <p className="text-sm text-foreground/80 line-clamp-2 leading-relaxed">
-            {job.description}
-          </p>
+          {/* Description (Mapped from Text field in Backend) */}
+          <div 
+            className="text-sm text-foreground/80 line-clamp-2 leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: job.reportText || job.description }} 
+          />
 
           {/* Job ID + Date + Status + Process Function */}
           <div className="text-xs text-muted-foreground pt-1 border-t border-border/50 space-y-1">
