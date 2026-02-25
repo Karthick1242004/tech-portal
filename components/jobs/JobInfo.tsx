@@ -253,7 +253,7 @@ export function JobInfo({ job, translatedDescription, translatedInstruction, isT
             ) : (
                <div 
                 className="bg-amber-50/50 dark:bg-amber-950/10 p-3 rounded-md text-sm text-foreground/90 leading-relaxed border border-amber-100 dark:border-amber-900/20"
-                dangerouslySetInnerHTML={{ __html: translatedInstruction || job.reportText }}
+                dangerouslySetInnerHTML={{ __html: translatedInstruction || job.reportText || '' }}
               />
             )}
           </div>
