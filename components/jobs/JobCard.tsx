@@ -41,7 +41,6 @@ export function JobCard({ job, index = 0 }: JobCardProps) {
         style={{ animationDelay: `${index * 50}ms` }}
       >
         <div className="space-y-3">
-          {/* Header: Equipment ID + Name */}
           <div className="flex items-start justify-between gap-3">
             <h3 className="font-semibold text-base leading-tight group-hover:text-foreground transition-colors flex-1">
               {job.id} – {job.description}
@@ -58,13 +57,10 @@ export function JobCard({ job, index = 0 }: JobCardProps) {
             </div>
           </div>
 
-          {/* Description (Mapped from Text field in Backend) */}
           <div 
             className="text-sm text-foreground/80 line-clamp-2 leading-relaxed"
             dangerouslySetInnerHTML={{ __html: job.reportText || job.description }} 
           />
-
-          {/* Job ID + Date + Status + Process Function */}
           <div className="text-xs text-muted-foreground pt-1 border-t border-border/50 space-y-1">
             <div className="flex items-center gap-1 flex-wrap">
               <span className="font-medium">{job.id}</span>

@@ -42,17 +42,13 @@ export function ImageUploader({
       const validFiles: ImageFile[] = [];
 
       for (const file of filesToAdd) {
-        // Validate file type
         if (!file.type.startsWith('image/')) {
           continue;
         }
-
-        // Validate file size
         if (file.size > maxSizeBytes) {
           continue;
         }
 
-        // Create preview and data URL
         const dataUrl = await new Promise<string>((resolve) => {
           const reader = new FileReader();
           reader.onload = (e) => resolve(e.target?.result as string);
