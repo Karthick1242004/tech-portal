@@ -297,13 +297,15 @@ export function JobInfo({ job, translatedDescription, translatedInstruction, isT
                   </div>
                   {/* <p className="text-xs text-muted-foreground"></p> */}
                </div>
-               <a 
-                 href={`tel:${job.contact.phone}`} 
-                 className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-                 aria-label={`Call ${job.contact.name}`}
-               >
-                 <Phone className="w-4 h-4" />
-               </a>
+               {job.contact.phone && (
+                 <a 
+                   href={`tel:${job.contact.phone}`} 
+                   className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                   aria-label={`Call ${job.contact.name}`}
+                 >
+                   <Phone className="w-4 h-4" />
+                 </a>
+               )}
             </div>
           </div>
         </Card>
