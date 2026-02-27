@@ -4,7 +4,7 @@ import { useSessionStore } from '@/store/session.store';
 import { Button } from '@/components/ui/button';
 import { LogOut, LayoutGrid } from 'lucide-react';
 import { ModeToggle } from '@/components/ui/mode-toggle';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
 import {
   Tooltip,
@@ -15,6 +15,7 @@ import {
 export function AppHeader() {
   const { isAuthenticated, vendorId, userRole, clearSession } = useSessionStore();
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleLogout = () => {
     clearSession();
@@ -22,7 +23,7 @@ export function AppHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+    <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 print:hidden">
       <div className="w-full max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-3">
           <Image 
@@ -48,24 +49,21 @@ export function AppHeader() {
           <div className="flex items-center gap-2">
             <ModeToggle />
 
-            {userRole === 'admin' && (
+            {userRole === 'admin' && pathname !== '/admin' && (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button 
                     variant="outline"
                     size="sm"
-                    onClick={() => {
-                        clearSession();
-                        router.push('/login');
-                    }}
-                    aria-label="Return to QR Scan"
+                    onClick={() => router.push('/admin')}
+                    aria-label="Return to Admin Dashboard"
                   >
-                    <span className="hidden md:inline">Back to QR</span>
+                    <span className="hidden md:inline">Back to Dashboard</span>
                     <span className="md:hidden">Back</span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Return to Technician</p>
+                  <p>Return to Dashboard</p>
                 </TooltipContent>
               </Tooltip>
             )}

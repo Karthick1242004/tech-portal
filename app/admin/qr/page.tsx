@@ -2,9 +2,9 @@ import { QrGenerator } from '@/components/admin/QrGenerator';
 
 export default function AdminQrPage() {
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden print:min-h-0 print:overflow-visible print:bg-white">
       {/* Background Pattern */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 print:hidden">
         {/* Decorative Icons Pattern */}
         <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.02]">
           <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
@@ -37,7 +37,7 @@ export default function AdminQrPage() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex items-center justify-center p-4 min-h-screen">
+      <div className="relative z-10 flex items-center justify-center p-4 min-h-screen print:min-h-0 print:block print:p-0 print:m-0">
         <QrGenerator />
       </div>
     </div>
