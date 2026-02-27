@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useSessionStore } from '@/store/session.store';
 import { apiClient } from '@/lib/api';
-import { Loader2, Shield, Lock, Mail, AlertCircle } from 'lucide-react';
+import { Loader2, Shield, Lock, Mail, AlertCircle, ArrowLeft } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -63,7 +63,18 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4 relative">
+      <div className="absolute top-4 left-4 md:top-8 md:left-8">
+        <Button 
+          variant="ghost" 
+          onClick={() => router.push('/login')}
+          className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to QR Login
+        </Button>
+      </div>
+
       <Card className="w-full max-w-md p-8 shadow-xl border-t-4 border-t-primary">
         <div className="space-y-6">
           {/* Header */}
