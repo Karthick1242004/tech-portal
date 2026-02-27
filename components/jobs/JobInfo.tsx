@@ -208,14 +208,13 @@ export function JobInfo({ job, translatedDescription, translatedInstruction, isT
                   <SelectContent>
                     <SelectItem value="en">English</SelectItem>
                     <SelectItem value="pl">Polish (Polski)</SelectItem>
-                    <SelectItem value="pa">Punjabi (ਪੰਜਾਬੀ)</SelectItem>
+                    <SelectItem value="ro">Romanian (Română)</SelectItem>
                     <SelectItem value="ur">Urdu (اردو)</SelectItem>
-                    <SelectItem value="bn">Bengali (বাংলা)</SelectItem>
-                    <SelectItem value="gu">Gujarati (ગુજરાતી)</SelectItem>
                     <SelectItem value="ar">Arabic (العربية)</SelectItem>
                     <SelectItem value="fr">French (Français)</SelectItem>
                     <SelectItem value="es">Spanish (Español)</SelectItem>
                     <SelectItem value="pt">Portuguese (Português)</SelectItem>
+                    <SelectItem value="it">Italian (Italiano)</SelectItem>
                     <SelectItem value="cy">Welsh (Cymraeg)</SelectItem>
                   </SelectContent>
                 </Select>
