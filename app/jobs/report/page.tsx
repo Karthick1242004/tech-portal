@@ -154,12 +154,12 @@ export default function ReportJobPage() {
       setIsSubmitting(true);
 
       const payload: ReportJobPayload = {
-        description: formData.description,
+        description: formData.workOrderTypeId ? `[Type: ${formData.workOrderTypeId}] ${formData.description}` : formData.description,
         reporterText: formData.reporterText,
         context: formData.context,
         equipmentId: formData.equipmentId,
         processFunctionId: formData.processFunctionId,
-        workOrderTypeId: formData.workOrderTypeId,
+        workOrderTypeId: "APP", // Hardcoded requirement for Ultimo Demo REST_ReportJob Workflow
         siteId: formData.siteId,
         specId: formData.specId,
         reportDate: new Date(formData.reportDate).toISOString(),
@@ -175,7 +175,6 @@ export default function ReportJobPage() {
 
       toast({
         title: 'Job Reported Successfully',
-        description: `Job ID: ${result.jobId || 'Unknown'}`,
         className: "text-white",
       });
 
