@@ -159,9 +159,9 @@ export default function ReportJobPage() {
         context: formData.context,
         equipmentId: formData.equipmentId,
         processFunctionId: formData.processFunctionId,
-        workOrderTypeId: "APP", // Hardcoded requirement for Ultimo Demo REST_ReportJob Workflow
-        siteId: formData.siteId,
-        specId: formData.specId,
+        workOrderTypeId: "APP", 
+        siteId: "",
+        specId: "",
         reportDate: new Date(formData.reportDate).toISOString(),
       };
 
@@ -441,7 +441,7 @@ export default function ReportJobPage() {
             </div>
 
             {/* Optional Fields - Site ID and Space ID */}
-            <div className={glassCard}>
+            {/* <div className={glassCard}>
               <h3 className="text-sm font-medium text-muted-foreground/70 uppercase tracking-wider mb-4">Location Details (Optional)</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -472,7 +472,7 @@ export default function ReportJobPage() {
                   />
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* Context */}
             <div className={glassCard}>
