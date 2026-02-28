@@ -15,10 +15,11 @@ interface JobFeedbackProps {
   job: Job;
   selectedImages: File[];
   setSelectedImages: (images: File[]) => void;
+  previewUrls: string[];
   setPreviewUrls: (urls: string[]) => void;
 }
 
-export function JobFeedback({ job, selectedImages, setSelectedImages, setPreviewUrls }: JobFeedbackProps) {
+export function JobFeedback({ job, selectedImages, setSelectedImages, previewUrls, setPreviewUrls }: JobFeedbackProps) {
   const [feedbackText, setFeedbackText] = useState(job.feedbackText || '');
   const [hoursWorked, setHoursWorked] = useState(job.hoursWorked?.toString() || '0');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,8 +47,8 @@ export function JobFeedback({ job, selectedImages, setSelectedImages, setPreview
             description: 'Feedback and images submitted successfully',
             className: "text-white",
         });
-        
-        // Optional: Clear form or redirect
+        // Clear local storage and state upon successful submission
+        localStorage.removeItem(`jobFeedbackImages_${job.id}`);
         setSelectedImages([]);
         setPreviewUrls([]);
     } catch (error: any) {
@@ -90,9 +91,14 @@ export function JobFeedback({ job, selectedImages, setSelectedImages, setPreview
             <p className="text-sm text-muted-foreground">No new images attached. Go to the Images tab to add photos.</p>
         ) : (
              <div className="grid grid-cols-4 gap-2">
-                 {selectedImages.map((file, i) => (
-                     <div key={i} className="text-xs text-muted-foreground truncate border p-1 rounded bg-background">
-                         {file.name}
+                 {previewUrls.map((url, i) => (
+                     <div key={i} className="relative aspect-square overflow-hidden rounded-md border bg-background">
+                         {/* eslint-disable-next-line @next/next/no-img-element */}
+                         <img 
+                           src={url} 
+                           alt={`Attached preview ${i + 1}`} 
+                           className="object-cover w-full h-full"
+                         />
                      </div>
                  ))}
              </div>

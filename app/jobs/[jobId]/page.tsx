@@ -43,6 +43,63 @@ export default function JobDetailPage() {
   // Shared state for Feedback and Images
   const [feedbackImages, setFeedbackImages] = useState<File[]>([]);
   const [feedbackPreviewUrls, setFeedbackPreviewUrls] = useState<string[]>([]);
+  const [hasAttemptedLoad, setHasAttemptedLoad] = useState(false);
+
+  // Load feedback images from localStorage on mount
+  useEffect(() => {
+    const loadFromStorage = async () => {
+       const stored = localStorage.getItem(`jobFeedbackImages_${jobId}`);
+       if (stored) {
+         try {
+           const parsedImages = JSON.parse(stored);
+           const reconstructedFiles = await Promise.all(
+             parsedImages.map(async (img: any) => {
+               const res = await fetch(img.dataUrl);
+               const blob = await res.blob();
+               return new File([blob], img.fileName, { type: img.fileType });
+             })
+           );
+           const newUrls = reconstructedFiles.map(file => URL.createObjectURL(file));
+           setFeedbackImages(reconstructedFiles);
+           setFeedbackPreviewUrls(newUrls);
+         } catch (e) {
+           console.error('Failed to load stored images:', e);
+           localStorage.removeItem(`jobFeedbackImages_${jobId}`);
+         }
+       }
+       setHasAttemptedLoad(true);
+    };
+    loadFromStorage();
+  }, [jobId]);
+
+  // Save feedback images to localStorage when they change
+  useEffect(() => {
+    if (!hasAttemptedLoad) return;
+    
+    const saveToStorage = async () => {
+      if (feedbackImages.length > 0) {
+        const storedImages = await Promise.all(
+          feedbackImages.map(async (file) => {
+             return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    resolve({
+                       fileName: file.name,
+                       fileType: file.type,
+                       dataUrl: reader.result,
+                    });
+                };
+                reader.readAsDataURL(file);
+             });
+          })
+        );
+        localStorage.setItem(`jobFeedbackImages_${jobId}`, JSON.stringify(storedImages));
+      } else {
+        localStorage.removeItem(`jobFeedbackImages_${jobId}`);
+      }
+    };
+    saveToStorage();
+  }, [feedbackImages, jobId, hasAttemptedLoad]);
 
   useEffect(() => {
     // Auth check - commented out for testing
@@ -241,6 +298,7 @@ export default function JobDetailPage() {
                     job={job} 
                     selectedImages={feedbackImages}
                     setSelectedImages={setFeedbackImages}
+                    previewUrls={feedbackPreviewUrls}
                     setPreviewUrls={setFeedbackPreviewUrls}
                   />
               )}

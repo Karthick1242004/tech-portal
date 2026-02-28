@@ -75,6 +75,7 @@ export function JobImages({ job, selectedImages, setSelectedImages, previewUrls,
           <h3 className="text-lg font-semibold mb-2">No images uploaded</h3>
           <p className="text-sm text-muted-foreground mb-6">
             No images have been uploaded for this job yet.
+            <span className="block mt-2 text-primary font-medium text-xs">Note: To attach images to your feedback, upload them here, then navigate to the Feedback tab to submit.</span>
           </p>
           <label htmlFor="image-upload-empty">
             <Button type="button" variant="default" asChild>
@@ -166,9 +167,14 @@ export function JobImages({ job, selectedImages, setSelectedImages, previewUrls,
         />
       </label>
 
-      <p className="text-xs text-center text-muted-foreground">
-        Maximum {maxImages} photos allowed
-      </p>
+      <div className="text-center space-y-1 mt-2">
+        <p className="text-xs text-muted-foreground">
+          Maximum {maxImages} photos allowed
+        </p>
+        <p className="text-md font-medium text-primary pt-2 border-t border-border/50 max-w-[250px] mx-auto">
+          Note: To attach images to your feedback, upload them here, then navigate to the Feedback tab to submit.
+        </p>
+      </div>
     </div>
   );
 }
