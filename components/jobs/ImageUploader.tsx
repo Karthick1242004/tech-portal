@@ -157,11 +157,11 @@ export function ImageUploader({
             </div>
             <div>
               <p className="text-sm font-medium text-foreground/80 mb-1">
-                Click to upload or drag and drop
+                Click to upload or drag and drop max 4 images
               </p>
-              <p className="text-xs text-muted-foreground">
+              {/* <p className="text-xs text-muted-foreground">
                 PNG, JPG, GIF up to {maxSizeMB}MB ({maxImages - images.length} remaining)
-              </p>
+              </p> */}
             </div>
           </div>
         </div>

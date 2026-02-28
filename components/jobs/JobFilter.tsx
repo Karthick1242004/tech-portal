@@ -116,10 +116,10 @@ export function JobFilter({ filterState, onFilterChange, onReset, totalJobs }: J
                 <Label 
                   htmlFor="r1" 
                   className={cn(
-                    "cursor-pointer px-3 py-1.5 rounded-md text-xs font-medium transition-all",
+                    "cursor-pointer px-3 py-1.5 rounded-md text-sm font-medium transition-all",
                     localState.dateType === 'plannedStart' 
-                      ? "bg-white dark:bg-slate-700 text-primary dark:text-primary-foreground shadow-sm" 
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "bg-white dark:bg-slate-700 text-primary dark:text-black shadow-sm" 
+                      : "text-muted-foreground hover:text-foreground dark:text-black dark:hover:text-black"
                   )}
                 >
                   Planned
@@ -130,10 +130,10 @@ export function JobFilter({ filterState, onFilterChange, onReset, totalJobs }: J
                 <Label 
                   htmlFor="r2" 
                   className={cn(
-                    "cursor-pointer px-3 py-1.5 rounded-md text-xs font-medium transition-all",
+                    "cursor-pointer px-3 py-1.5 rounded-md text-sm font-medium transition-all",
                     localState.dateType === 'targetEnd' 
-                      ? "bg-white dark:bg-slate-700 text-primary dark:text-primary-foreground shadow-sm" 
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "bg-white dark:bg-slate-700 text-primary dark:text-black shadow-sm" 
+                      : "text-muted-foreground hover:text-foreground dark:text-black dark:hover:text-black"
                   )}
                 >
                   Target
@@ -226,11 +226,11 @@ export function JobFilter({ filterState, onFilterChange, onReset, totalJobs }: J
             Apply Filters
           </Button>
           <div className="flex gap-3 w-full">
-            <Button variant="outline" onClick={() => { onReset(); setOpen(false); }} className="flex-1 h-12 rounded-xl border-slate-200 text-slate-600">
+            <Button variant="outline" onClick={() => { onReset(); setOpen(false); }} className="flex-1 h-12 rounded-xl border-slate-200 text-slate-600 dark:text-slate-200">
               Reset
             </Button>
             <DrawerClose asChild>
-              <Button variant="ghost" className="flex-1 h-12 rounded-xl text-slate-500">
+              <Button variant="ghost" className="flex-1 h-12 rounded-xl text-slate-500 dark:text-slate-200">
                 Cancel
               </Button>
             </DrawerClose>

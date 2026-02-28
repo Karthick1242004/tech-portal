@@ -63,8 +63,8 @@ export function JobCard({ job, index = 0 }: JobCardProps) {
           />
           <div className="text-xs text-muted-foreground pt-1 border-t border-border/50 space-y-1">
             <div className="flex items-center gap-1 flex-wrap">
-              <span className="font-medium">{job.id}</span>
-              <span>-</span>
+              {/* <span className="font-medium">{job.id}</span>
+              <span>-</span> */}
               <span>{new Date(job.plannedStart).toLocaleDateString('en-US', { 
                 weekday: 'long', 
                 day: 'numeric', 
@@ -80,8 +80,8 @@ export function JobCard({ job, index = 0 }: JobCardProps) {
               <span className={job.status.toLowerCase() === 'in progress' ? 'text-emerald-600 font-semibold dark:text-emerald-400' : 'font-medium'}>
                 {job.status}
               </span>
-              <span>-</span>
-              <span>{job.processFunction.description}</span>
+              <span className={`${job.processFunction.description === 'Unknown' ? 'hidden' : ''}`}>-</span>
+              <span className={`${job.processFunction.description === 'Unknown' ? 'hidden' : ''}`}>{job.processFunction.description}</span>
             </div>
           </div>
         </div>

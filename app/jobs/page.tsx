@@ -168,7 +168,7 @@ export default function JobsPage() {
             <div className="flex items-start justify-between">
               <div className="space-y-1">
                 <h1 className="text-2xl font-bold tracking-tight">Active Jobs</h1>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-md text-muted-foreground">
                   Vendor: {vendorName || vendorId || 'ACME Industrial Services'}
                 </p>
                 <p className="text-xs text-muted-foreground">
