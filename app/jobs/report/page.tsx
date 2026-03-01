@@ -3,11 +3,19 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSessionStore } from '@/store/session.store';
+import { useTranslationStore } from '@/store/translation.store';
 import { getEquipment, getProcessFunctions, getWorkOrderTypes, reportJob } from '@/lib/api';
 import type { Equipment, ProcessFunction, WorkOrderType, ReportJobPayload } from '@/types/report-job';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Loader2, Check, ChevronsUpDown } from 'lucide-react';
+import { ArrowLeft, Loader2, Check, ChevronsUpDown, Languages } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Command,
   CommandEmpty,
@@ -24,10 +32,80 @@ import {
 import { cn } from '@/lib/utils';
 import { ImageUploader, ImageFile } from '@/components/jobs/ImageUploader';
 
+// --- Default English labels for all form UI text ---
+const DEFAULT_LABELS = {
+  title: 'Report New Job',
+  back: 'Back',
+  loadingData: 'Loading form data...',
+  descriptionLabel: 'Description',
+  descriptionPlaceholder: 'Describe the issue or job request...',
+  reporterLabel: 'Reporter Name/ID',
+  reporterPlaceholder: 'Enter your name or ID',
+  jobDetails: 'Job Details',
+  equipmentLabel: 'Equipment',
+  equipmentSearchPlaceholder: 'Search equipment...',
+  equipmentEmpty: 'No equipment found.',
+  processFunctionLabel: 'Process Function',
+  processFunctionSearchPlaceholder: 'Search process function...',
+  processFunctionEmpty: 'No process function found.',
+  workOrderTypeLabel: 'Work Order Type',
+  workOrderTypeSearchPlaceholder: 'Search work order type...',
+  workOrderTypeEmpty: 'No work order type found.',
+  reportDateLabel: 'Report Date & Time',
+  contextLabel: 'Additional Context',
+  contextPlaceholder: 'Add any additional context, notes, or observations...',
+  cancelButton: 'Cancel',
+  submitButton: 'Submit Job Report',
+  submittingButton: 'Submitting...',
+};
+
 export default function ReportJobPage() {
   const router = useRouter();
   const { isAuthenticated, isTestMode } = useSessionStore();
   const { toast } = useToast();
+  const { getTranslation, setTranslation } = useTranslationStore();
+
+  // Translation state
+  const [labels, setLabels] = useState(DEFAULT_LABELS);
+  const [currentLang, setCurrentLang] = useState('en');
+  const [isTranslatingLabels, setIsTranslatingLabels] = useState(false);
+
+  const handleLanguageChange = async (lang: string) => {
+    setCurrentLang(lang);
+    if (lang === 'en') {
+      setLabels(DEFAULT_LABELS);
+      return;
+    }
+    // Check Zustand cache
+    const cacheKey = `report-labels-${lang}`;
+    const cached = getTranslation(cacheKey);
+    if (cached) {
+      setLabels(JSON.parse(cached));
+      return;
+    }
+    // Batch-translate all labels in a single API call
+    setIsTranslatingLabels(true);
+    try {
+      const keys = Object.keys(DEFAULT_LABELS) as (keyof typeof DEFAULT_LABELS)[];
+      const values = keys.map(k => DEFAULT_LABELS[k]);
+      const res = await fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ q: values, source: 'en', target: lang }),
+      });
+      const data = await res.json();
+      if (data.translatedTexts && data.translatedTexts.length === keys.length) {
+        const translated: typeof DEFAULT_LABELS = {} as typeof DEFAULT_LABELS;
+        keys.forEach((k, i) => { translated[k] = data.translatedTexts[i]; });
+        setLabels(translated);
+        setTranslation(cacheKey, JSON.stringify(translated));
+      }
+    } catch (err) {
+      console.error('[ReportJob] Label translation failed:', err);
+    } finally {
+      setIsTranslatingLabels(false);
+    }
+  };
 
   // Reference Data State
   const [equipment, setEquipment] = useState<Equipment[]>([]);
@@ -201,7 +279,7 @@ export default function ReportJobPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex items-center gap-2">
           <Loader2 className="w-6 h-6 animate-spin" />
-          <span>Loading form data...</span>
+          <span>{labels.loadingData}</span>
         </div>
       </div>
     );
@@ -218,17 +296,41 @@ export default function ReportJobPage() {
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm">
         <div className="flex justify-center">
           <div className="w-full max-w-2xl px-4 py-4">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => router.push('/jobs')}
-                className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all duration-200 hover:-translate-x-1"
-              >
-                <ArrowLeft className="w-5 h-5" />
-                <span>Back</span>
-              </button>
-              <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
-                Report New Job
-              </h1>
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => router.push('/jobs')}
+                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all duration-200 hover:-translate-x-1"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                  <span>{labels.back}</span>
+                </button>
+                <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
+                  {labels.title}
+                </h1>
+              </div>
+              {/* Language Selector */}
+              <div className="flex items-center gap-2">
+                {isTranslatingLabels && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
+                <Select value={currentLang} onValueChange={handleLanguageChange} disabled={isTranslatingLabels}>
+                  <SelectTrigger className="h-8 text-xs px-2 border rounded bg-background min-w-[90px] gap-1">
+                    <Languages className="w-3.5 h-3.5 shrink-0" />
+                    <SelectValue placeholder="Language" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="en">English</SelectItem>
+                    <SelectItem value="pl">Polish (Polski)</SelectItem>
+                    <SelectItem value="ro">Romanian (Română)</SelectItem>
+                    <SelectItem value="ur">Urdu (اردو)</SelectItem>
+                    <SelectItem value="ar">Arabic (العربية)</SelectItem>
+                    <SelectItem value="fr">French (Français)</SelectItem>
+                    <SelectItem value="es">Spanish (Español)</SelectItem>
+                    <SelectItem value="pt">Portuguese (Português)</SelectItem>
+                    <SelectItem value="it">Italian (Italiano)</SelectItem>
+                    <SelectItem value="cy">Welsh (Cymraeg)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         </div>
@@ -242,14 +344,14 @@ export default function ReportJobPage() {
             {/* Description */}
             <div className={glassCard}>
               <label htmlFor="description" className={labelStyle}>
-                Description <span className="text-destructive">*</span>
+                {labels.descriptionLabel} <span className="text-destructive">*</span>
               </label>
               <textarea
                 id="description"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 className={`${glassInput} min-h-[100px]`}
-                placeholder="Describe the issue or job request..."
+                placeholder={labels.descriptionPlaceholder}
                 required
               />
             </div>
@@ -257,7 +359,7 @@ export default function ReportJobPage() {
             {/* Reporter Text */}
             <div className={glassCard}>
               <label htmlFor="reporterText" className={labelStyle}>
-                Reporter Name/ID <span className="text-destructive">*</span>
+                {labels.reporterLabel} <span className="text-destructive">*</span>
               </label>
               <input
                 type="text"
@@ -265,19 +367,19 @@ export default function ReportJobPage() {
                 value={formData.reporterText}
                 onChange={(e) => setFormData({ ...formData, reporterText: e.target.value })}
                 className={glassInput}
-                placeholder="Enter your name or ID"
+                placeholder={labels.reporterPlaceholder}
                 required
               />
             </div>
 
             {/* Core Details Group - Equipment, Process Function, Work Order Type */}
             <div className={`${glassCard} space-y-5`}>
-              <h3 className="text-sm font-medium text-muted-foreground/70 uppercase tracking-wider mb-2">Job Details</h3>
+              <h3 className="text-sm font-medium text-muted-foreground/70 uppercase tracking-wider mb-2">{labels.jobDetails}</h3>
               
               {/* Equipment Dropdown */}
               <div>
                 <label className={labelStyle}>
-                  Equipment <span className="text-destructive">*</span>
+                  {labels.equipmentLabel} <span className="text-destructive">*</span>
                 </label>
                 <Popover open={equipmentOpen} onOpenChange={setEquipmentOpen}>
                   <PopoverTrigger asChild>
@@ -289,15 +391,15 @@ export default function ReportJobPage() {
                     >
                       {formData.equipmentId
                         ? equipment.find((item) => item.id === formData.equipmentId)?.description + ` (${formData.equipmentId})`
-                        : "Select Equipment..."}
+                        : `${labels.equipmentSearchPlaceholder.replace('...', '')}...`}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-[400px] p-0" align="start">
                     <Command>
-                      <CommandInput placeholder="Search equipment..." />
+                      <CommandInput placeholder={labels.equipmentSearchPlaceholder} />
                       <CommandList>
-                        <CommandEmpty>No equipment found.</CommandEmpty>
+                        <CommandEmpty>{labels.equipmentEmpty}</CommandEmpty>
                         <CommandGroup>
                           {equipment.map((item) => (
                             <CommandItem
@@ -327,7 +429,7 @@ export default function ReportJobPage() {
               {/* Process Function Dropdown */}
               <div>
                 <label className={labelStyle}>
-                  Process Function <span className="text-destructive">*</span>
+                  {labels.processFunctionLabel} <span className="text-destructive">*</span>
                 </label>
                 <Popover open={processFunctionOpen} onOpenChange={setProcessFunctionOpen}>
                   <PopoverTrigger asChild>
@@ -339,15 +441,15 @@ export default function ReportJobPage() {
                     >
                       {formData.processFunctionId
                         ? processFunctions.find((item) => item.id === formData.processFunctionId)?.description + ` (${formData.processFunctionId})`
-                        : "Select Process Function..."}
+                        : `${labels.processFunctionSearchPlaceholder.replace('...', '')}...`}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-[400px] p-0" align="start">
                     <Command>
-                      <CommandInput placeholder="Search process function..." />
+                      <CommandInput placeholder={labels.processFunctionSearchPlaceholder} />
                       <CommandList>
-                        <CommandEmpty>No process function found.</CommandEmpty>
+                        <CommandEmpty>{labels.processFunctionEmpty}</CommandEmpty>
                         <CommandGroup>
                           {processFunctions.map((item) => (
                             <CommandItem
@@ -377,7 +479,7 @@ export default function ReportJobPage() {
               {/* Work Order Type Dropdown */}
               <div>
                 <label className={labelStyle}>
-                  Work Order Type <span className="text-destructive">*</span>
+                  {labels.workOrderTypeLabel} <span className="text-destructive">*</span>
                 </label>
                 <Popover open={workOrderTypeOpen} onOpenChange={setWorkOrderTypeOpen}>
                   <PopoverTrigger asChild>
@@ -389,15 +491,15 @@ export default function ReportJobPage() {
                     >
                       {formData.workOrderTypeId
                         ? workOrderTypes.find((item) => item.id === formData.workOrderTypeId)?.description + ` (${formData.workOrderTypeId})`
-                        : "Select Work Order Type..."}
+                        : `${labels.workOrderTypeSearchPlaceholder.replace('...', '')}...`}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-[400px] p-0" align="start">
                     <Command>
-                      <CommandInput placeholder="Search work order type..." />
+                      <CommandInput placeholder={labels.workOrderTypeSearchPlaceholder} />
                       <CommandList>
-                        <CommandEmpty>No work order type found.</CommandEmpty>
+                        <CommandEmpty>{labels.workOrderTypeEmpty}</CommandEmpty>
                         <CommandGroup>
                           {workOrderTypes.map((item) => (
                             <CommandItem
@@ -428,7 +530,7 @@ export default function ReportJobPage() {
             {/* Report Date */}
             <div className={glassCard}>
               <label htmlFor="reportDate" className={labelStyle}>
-                Report Date & Time <span className="text-destructive">*</span>
+                {labels.reportDateLabel} <span className="text-destructive">*</span>
               </label>
               <input
                 type="datetime-local"
@@ -477,14 +579,14 @@ export default function ReportJobPage() {
             {/* Context */}
             <div className={glassCard}>
               <label htmlFor="context" className={labelStyle}>
-                Additional Context
+                {labels.contextLabel}
               </label>
               <textarea
                 id="context"
                 value={formData.context}
                 onChange={(e) => setFormData({ ...formData, context: e.target.value })}
                 className={`${glassInput} min-h-[80px]`}
-                placeholder="Add any additional context, notes, or observations..."
+                placeholder={labels.contextPlaceholder}
               />
             </div>
 
@@ -504,7 +606,7 @@ export default function ReportJobPage() {
                 onClick={() => router.push('/jobs')}
                 className="flex-1 px-6 py-3 border border-slate-200/50 dark:border-slate-800/50 rounded-xl bg-white/50 dark:bg-slate-900/50 backdrop-blur-md hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-all duration-300 font-medium text-foreground/80 hover:text-foreground shadow-sm hover:shadow"
               >
-                Cancel
+                {labels.cancelButton}
               </button>
               <button
                 type="submit"
@@ -512,7 +614,7 @@ export default function ReportJobPage() {
                 className="flex-1 px-6 py-3 bg-foreground text-background dark:bg-primary dark:text-primary-foreground rounded-xl hover:opacity-90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-semibold shadow-lg shadow-black/5 hover:shadow-xl hover:-translate-y-0.5"
               >
                 {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                {isSubmitting ? 'Submitting...' : 'Submit Job Report'}
+                {isSubmitting ? labels.submittingButton : labels.submitButton}
               </button>
             </div>
           </form>

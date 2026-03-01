@@ -22,6 +22,9 @@ export async function POST(request: Request) {
             );
         }
 
+        // Support batch translation: q can be a single string or an array of strings.
+        const isBatch = Array.isArray(q);
+
         // Google Translate API URL
         const url = `https://translation.googleapis.com/language/translate/v2?key=${GOOGLE_API_KEY}`;
 
@@ -42,7 +45,6 @@ export async function POST(request: Request) {
             const errorData = await response.json();
             console.error('[Translation] API error:', response.status, errorData);
 
-            // Handle Specific Google API Errors
             if (response.status === 403) {
                 return NextResponse.json({ error: 'Invalid API Key or Quota exceeded' }, { status: 403 });
             }
@@ -57,16 +59,22 @@ export async function POST(request: Request) {
         }
 
         const data = await response.json();
+        const translations = data.data?.translations;
 
-        // Google API returns { data: { translations: [{ translatedText: "..." }] } }
-        // We map it to { translatedText: "..." } to match frontend expectations
-        const translatedText = data.data?.translations?.[0]?.translatedText;
-
-        if (!translatedText) {
+        if (!translations || translations.length === 0) {
             throw new Error('Invalid response format from Translation Provider');
         }
 
-        return NextResponse.json({ translatedText });
+        if (isBatch) {
+            // Return all translated strings as an array
+            const translatedTexts = translations.map((t: any) => t.translatedText);
+            return NextResponse.json({ translatedTexts });
+        } else {
+            // Return a single translated string (backward-compatible)
+            const translatedText = translations[0]?.translatedText;
+            if (!translatedText) throw new Error('Invalid response format from Translation Provider');
+            return NextResponse.json({ translatedText });
+        }
 
     } catch (error) {
         console.error('[Translation] Internal error:', error);
