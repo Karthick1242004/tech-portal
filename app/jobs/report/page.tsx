@@ -319,11 +319,13 @@ export default function ReportJobPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="en">English</SelectItem>
+                    <SelectItem value="du">Dutch</SelectItem>
+                    <SelectItem value="ge">German</SelectItem>
+                    <SelectItem value="fr">French (Français)</SelectItem>
                     <SelectItem value="pl">Polish (Polski)</SelectItem>
                     <SelectItem value="ro">Romanian (Română)</SelectItem>
                     <SelectItem value="ur">Urdu (اردو)</SelectItem>
                     <SelectItem value="ar">Arabic (العربية)</SelectItem>
-                    <SelectItem value="fr">French (Français)</SelectItem>
                     <SelectItem value="es">Spanish (Español)</SelectItem>
                     <SelectItem value="pt">Portuguese (Português)</SelectItem>
                     <SelectItem value="it">Italian (Italiano)</SelectItem>
