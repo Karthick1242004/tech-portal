@@ -28,7 +28,6 @@ export function FeedbackFilters({
   return (
     <Card className="p-6 bg-gradient-to-br from-background via-background to-muted/20 border-2 border-border/50 shadow-md backdrop-blur-sm">
       <div className="space-y-4">
-        {/* Search with Gradient Border */}
         <div className="relative group">
           <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-lg blur opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition duration-300"></div>
           <div className="relative">
@@ -43,7 +42,6 @@ export function FeedbackFilters({
           </div>
         </div>
 
-        {/* Filters Row with Header */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <Filter className="w-4 h-4 text-muted-foreground" />
@@ -56,7 +54,6 @@ export function FeedbackFilters({
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            {/* Min Hours Worked */}
             <div className="space-y-2 group">
               <Label htmlFor="min-hours" className="text-xs font-medium flex items-center gap-1.5">
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-gradient-to-r from-blue-400 to-indigo-500"></span>
@@ -79,7 +76,6 @@ export function FeedbackFilters({
               </Select>
             </div>
 
-            {/* Has Images */}
             <div className="space-y-2 group">
               <Label htmlFor="has-images" className="text-xs font-medium flex items-center gap-1.5">
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-gradient-to-r from-blue-400 to-cyan-500"></span>

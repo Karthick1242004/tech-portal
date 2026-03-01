@@ -22,10 +22,8 @@ export async function POST(request: Request) {
             );
         }
 
-        // Support batch translation: q can be a single string or an array of strings.
         const isBatch = Array.isArray(q);
 
-        // Google Translate API URL
         const url = `https://translation.googleapis.com/language/translate/v2?key=${GOOGLE_API_KEY}`;
 
         const response = await fetch(url, {
