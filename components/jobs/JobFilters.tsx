@@ -27,7 +27,7 @@ export function JobFilters({
     <div className="flex w-full items-center gap-3 mb-6">
        {/* Search Bar - Compact & Rounded */}
        <div className="relative flex-1 group">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
             <Search className="h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
           </div>
           <Input

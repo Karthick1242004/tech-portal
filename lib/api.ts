@@ -136,6 +136,18 @@ export class ApiClient {
     });
   }
 
+  async patch<T>(
+    endpoint: string,
+    data?: unknown,
+    options?: RequestInit
+  ): Promise<T> {
+    return this.request<T>(endpoint, {
+      ...options,
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
   async delete<T>(endpoint: string, options?: RequestInit): Promise<T> {
     return this.request<T>(endpoint, { ...options, method: 'DELETE' });
   }
@@ -244,6 +256,21 @@ export async function getJobById(jobId: string): Promise<Job | null> {
     throw e;
   }
 }
+
+export interface UpdateJobPayload {
+  description?: string;
+  scheduledStartDate?: string;
+  targetDate?: string;
+  reportText?: string;
+  text?: string;
+}
+
+export async function updateJob(jobId: string, payload: UpdateJobPayload): Promise<any> {
+  const response = await apiClient.patch<{ success: boolean; data: any }>(`/jobs/${jobId}`, payload);
+  return response.data;
+}
+
+
 
 export interface EmployeeInfo {
   Id: string;
