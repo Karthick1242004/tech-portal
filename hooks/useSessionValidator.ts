@@ -1,15 +1,17 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useSessionStore } from '@/store/session.store';
 import { validateSession } from '@/lib/api';
 
 /**
  * Custom hook to poll session validity
  * Checks every 10 seconds if the session is still active
- * If session is invalidated (another technician logged in), triggers SessionEndedCard
+ * If session is invalidated (another technician logged in), redirects to /session-ended
  */
 export function useSessionValidator() {
+    const router = useRouter();
     const { isAuthenticated, isTestMode, setInvalidated, clearSession } = useSessionStore();
 
     useEffect(() => {
@@ -33,6 +35,8 @@ export function useSessionValidator() {
                 if (error.code === 'SESSION_INVALIDATED') {
                     setInvalidated(true);
                     clearSession();
+                    // Explicitly redirect to session-ended page
+                    router.push('/session-ended');
                 }
                 // For other auth errors (expired, etc), let the global handler redirect
             }
@@ -48,5 +52,5 @@ export function useSessionValidator() {
             mounted = false;
             clearInterval(interval);
         };
-    }, [isAuthenticated, isTestMode, setInvalidated, clearSession]);
+    }, [isAuthenticated, isTestMode, setInvalidated, clearSession, router]);
 }

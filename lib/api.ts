@@ -54,6 +54,24 @@ export class ApiClient {
       if (!response.ok) {
         // Handle 401/403 specifically - Auto Redirect
         if (response.status === 401 || response.status === 403) {
+          // Parse the response body first to check for SESSION_INVALIDATED
+          let earlyErrorData: any = {};
+          try {
+            const earlyText = await response.clone().text();
+            if (earlyText) earlyErrorData = JSON.parse(earlyText);
+          } catch { }
+
+          // If session was invalidated by another login, DON'T redirect to /login.
+          // Let the useSessionValidator hook handle it via SessionEndedCard.
+          if (earlyErrorData.code === 'SESSION_INVALIDATED') {
+            const error: ApiError = {
+              message: earlyErrorData.error || 'Session invalidated',
+              status: 401,
+              code: 'SESSION_INVALIDATED',
+            };
+            throw error;
+          }
+
           if (typeof window !== 'undefined') {
             // Check if we're already on a login page to avoid loops
             const path = window.location.pathname;
