@@ -253,7 +253,7 @@ export default function ReportJobPage() {
 
       toast({
         title: 'Job Reported Successfully',
-        className: "text-white",
+        className: 'bg-emerald-600 text-white border-emerald-700',
       });
 
       // Redirect to jobs list
