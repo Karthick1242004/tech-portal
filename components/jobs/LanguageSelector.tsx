@@ -19,9 +19,17 @@ export function LanguageSelector({ value, onChange, disabled }: LanguageSelector
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="en">English</SelectItem>
-          <SelectItem value="ja">Japanese</SelectItem>
-          <SelectItem value="de">German</SelectItem>
-          <SelectItem value="fr">French</SelectItem>
+          <SelectItem value="nl">Dutch (Nederlands)</SelectItem>
+          <SelectItem value="de">German (Deutsch)</SelectItem>
+          <SelectItem value="fr">French (Français)</SelectItem>
+          <SelectItem value="pl">Polish (Polski)</SelectItem>
+          <SelectItem value="ro">Romanian (Română)</SelectItem>
+          <SelectItem value="ur">Urdu (اردو)</SelectItem>
+          <SelectItem value="ar">Arabic (العربية)</SelectItem>
+          <SelectItem value="es">Spanish (Español)</SelectItem>
+          <SelectItem value="pt">Portuguese (Português)</SelectItem>
+          <SelectItem value="it">Italian (Italiano)</SelectItem>
+          <SelectItem value="cy">Welsh (Cymraeg)</SelectItem>
         </SelectContent>
       </Select>
     </div>
